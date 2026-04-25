@@ -75,3 +75,9 @@ a:hover {
     font-size: 20px;
   }
 }
+
+.text-gradient {
+  background: linear-gradient(135deg, #4f46e5, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

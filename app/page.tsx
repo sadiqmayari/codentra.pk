@@ -265,14 +265,7 @@ export default function Home() {
         </div>
       </footer>
 
-      <style jsx>{`
-        .text-gradient {
-          background: linear-gradient(135deg, #4F46E5 0%, #818CF8 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-      `}</style>
+      
     </main>
   );
 }
