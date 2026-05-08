@@ -1,37 +1,46 @@
-# dependencies
-node_modules
-/.pnp
-.pnp.js
-*.pnp
+# Claude Code (CRITICAL - prevents worktree pollution)
+.claude/
 
-# testing
-/coverage
+# Environment files (CRITICAL - never commit DB passwords)
+.env
+.env.*
+!.env.example
 
-# next.js
-/.next/
-/out/
+# PHP / Composer
+/vendor/
+composer.lock
 
-# production
-/build
+# Project runtime data (should not be in repo)
+/cache/pages/*
+!/cache/pages/.gitkeep
+/uploads/*
+!/uploads/.gitkeep
+*.log
+error_log
 
-# misc
+# OS files
 .DS_Store
-*.pem
+Thumbs.db
+desktop.ini
 
-# debug
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-*
+
+# Backups
+*.bak
+*.backup
+*.orig
+
+# Node (only if you ever add a build step)
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
-
-# vercel
-.vercel
-
-# IDEs
-.idea
-.vscode
-*.swp
-*.swo
-*~
+# Misc
+*.pem

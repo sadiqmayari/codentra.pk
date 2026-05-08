@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /cache/
+Disallow: /uploads/
+Disallow: /.env
+Disallow: /config/
+
+Sitemap: https://codentra.pk/sitemap.xml
