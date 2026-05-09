@@ -352,3 +352,9 @@ Required headers (do not remove):
 DO NOT add another lead submission endpoint. Future forms (newsletter,
 quote request, etc.) should either reuse this controller with a new
 'source' value or be a separate controller for a different concept.
+
+---
+
+## 🔧 Deferred Tasks
+
+- [ ] **Email deliverability** — Add SPF + DKIM + DMARC records to Cloudflare DNS (values from hPanel → Emails → info@codentra.pk → Configuration). Verify with mail-tester.com (target 9/10+). Optional: tighten lead notification email content per the prompt drafted in chat.
