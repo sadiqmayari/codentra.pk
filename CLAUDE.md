@@ -247,3 +247,23 @@ Engine: `InnoDB` · Collation: `utf8mb4_unicode_ci`
 4. **Trust the structure** — folders/files defined above are the contract.
 5. **No unsolicited refactors** — only change what's asked.
 6. **Read this file first** — every Claude Code session starts here.
+
+
+## ⚠️ Production-Specific Gotchas (learned the hard way)
+
+1. **`.htaccess` rewrite order matters** — Apache applies `RewriteCond` only to the immediately following `RewriteRule`. The "serve real files directly" check MUST be its own block right before the route-to-PHP rule, like this:
+```apache
+   # Real file/dir? Serve it as-is and stop.
+   RewriteCond %{REQUEST_FILENAME} -f [OR]
+   RewriteCond %{REQUEST_FILENAME} -d
+   RewriteRule ^ - [L]
+
+   # Everything else → PHP router
+   RewriteRule ^ index.php [QSA,L]
+```
+
+2. **`php -S` ignores `.htaccess`** — local dev cannot catch Apache routing bugs. After any change to `.htaccess`, security headers, or rewrites, push to Hostinger and verify before considering the phase done.
+
+3. **CSP `connect-src`** — must include `https://cdnjs.cloudflare.com` if Three.js or any CDN script is used.
+
+4. **Hostinger filesystem case-sensitive** — Linux filesystem; `Image.PNG` ≠ `image.png`. Always lowercase asset filenames.
