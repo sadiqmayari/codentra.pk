@@ -20,6 +20,14 @@
     RewriteRule ^ index.php [QSA,L]
 </IfModule>
 
+# ── Cloudflare / proxy awareness ──────────────────────────────────────────────
+# When Cloudflare terminates SSL, the origin connection is HTTP. Apache won't
+# set HTTPS=on, so PHP code that checks $_SERVER['HTTPS'] thinks the request
+# is insecure. Trust the X-Forwarded-Proto header to fix that.
+<IfModule mod_setenvif.c>
+    SetEnvIfNoCase X-Forwarded-Proto "https" HTTPS=on
+</IfModule>
+
 # ── Compression ───────────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json application/xml text/plain

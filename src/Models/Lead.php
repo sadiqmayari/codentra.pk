@@ -24,7 +24,7 @@ class Lead extends \Core\Model
             'message'    => trim(strip_tags($input['message'] ?? '')),
             'source'     => $input['source']     ?? 'website',
             'status'     => 'new',
-            'ip_address' => $_SERVER['REMOTE_ADDR']     ?? null,
+            'ip_address' => \Core\Request::clientIp(),
             'user_agent' => substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 500),
         ]);
     }

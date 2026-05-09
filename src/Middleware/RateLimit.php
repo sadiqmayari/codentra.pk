@@ -16,7 +16,7 @@ class RateLimit
      */
     public static function check(string $scope, int $max, int $windowSec, ?string $ip = null): array
     {
-        $ip   = $ip ?? ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $ip   = $ip ?? \Core\Request::clientIp();
         $key  = hash('sha256', $scope . '|' . $ip);
         $now  = time();
 

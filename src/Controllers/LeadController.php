@@ -49,7 +49,7 @@ class LeadController extends \Core\Controller
         // Bots fill the hidden "website" field. Pretend success so they don't
         // learn this is the trap.
         if ($input['website'] !== '') {
-            error_log('[LEAD] honeypot triggered ip=' . ($_SERVER['REMOTE_ADDR'] ?? '?'));
+            error_log('[LEAD] honeypot triggered ip=' . \Core\Request::clientIp());
             $this->markJustSubmitted($input);
             $this->redirect('/contact/thanks');
         }
@@ -68,7 +68,7 @@ class LeadController extends \Core\Controller
         try {
             $lead   = new \Models\Lead();
             $leadId = $lead->submit($input);
-            error_log("[LEAD] saved id={$leadId} source={$input['source']} email={$input['email']} ip=" . ($_SERVER['REMOTE_ADDR'] ?? '?'));
+            error_log("[LEAD] saved id={$leadId} source={$input['source']} email={$input['email']} ip=" . \Core\Request::clientIp());
         } catch (\Throwable $e) {
             error_log('[LEAD] DB save failed: ' . $e->getMessage());
             $this->flashError(
@@ -190,7 +190,7 @@ class LeadController extends \Core\Controller
         };
 
         $when = date('Y-m-d H:i:s');
-        $ip   = $_SERVER['REMOTE_ADDR']     ?? 'unknown';
+        $ip   = \Core\Request::clientIp();
         $ua   = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
 
         $body = <<<HTML
