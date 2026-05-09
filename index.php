@@ -77,6 +77,18 @@ $router->get('/contact/thanks',  [\Controllers\LeadController::class,    'thanks
 $router->get('/privacy',     [\Controllers\LegalController::class,    'privacy']);
 $router->get('/terms',       [\Controllers\LegalController::class,    'terms']);
 
+// ── Admin / Auth ─────────────────────────────────────────────────────────────
+$router->get('/admin',           [\Controllers\AdminController::class, 'index']);
+$router->get('/admin/login',     [\Controllers\AuthController::class,  'showLogin']);
+$router->post('/admin/login',    [\Controllers\AuthController::class,  'login']);
+$router->post('/admin/logout',   [\Controllers\AuthController::class,  'logout']);
+
+// Authenticated admin routes — middleware runs before the controller method.
+$router->get('/admin/dashboard',
+    [\Controllers\AdminController::class, 'dashboard'],
+    [\Middleware\AuthMiddleware::class]
+);
+
 $router->fallback([\Controllers\ErrorController::class, 'notFound']);
 
 // ── Dispatch ──────────────────────────────────────────────────────────────────

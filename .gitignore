@@ -15,7 +15,11 @@ composer.lock
 !/cache/pages/.gitkeep
 /uploads/*
 !/uploads/.gitkeep
+/storage/*
+!/storage/.gitkeep
 *.log
+*.sqlite
+*.db
 error_log
 
 # OS files

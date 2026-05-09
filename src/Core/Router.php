@@ -15,24 +15,24 @@ class Router
         $this->fallbackHandler = $handler;
     }
 
-    public function get(string $pattern, array|callable $handler): void
+    public function get(string $pattern, array|callable $handler, array $middleware = []): void
     {
-        $this->addRoute('GET', $pattern, $handler);
+        $this->addRoute('GET', $pattern, $handler, $middleware);
     }
 
-    public function post(string $pattern, array|callable $handler): void
+    public function post(string $pattern, array|callable $handler, array $middleware = []): void
     {
-        $this->addRoute('POST', $pattern, $handler);
+        $this->addRoute('POST', $pattern, $handler, $middleware);
     }
 
-    public function any(string $pattern, array|callable $handler): void
+    public function any(string $pattern, array|callable $handler, array $middleware = []): void
     {
-        $this->addRoute('ANY', $pattern, $handler);
+        $this->addRoute('ANY', $pattern, $handler, $middleware);
     }
 
-    private function addRoute(string $method, string $pattern, array|callable $handler): void
+    private function addRoute(string $method, string $pattern, array|callable $handler, array $middleware = []): void
     {
-        $this->routes[] = compact('method', 'pattern', 'handler');
+        $this->routes[] = compact('method', 'pattern', 'handler', 'middleware');
     }
 
     // ── Dispatch ──────────────────────────────────────────────────────────────
@@ -48,6 +48,13 @@ class Router
 
             $params = $this->match($route['pattern'], $uri);
             if ($params === null) continue;
+
+            // Run any per-route middleware before invoking the handler.
+            // Middleware that decides to block a request must redirect/exit
+            // inside its handle() method; if it returns, we proceed.
+            foreach (($route['middleware'] ?? []) as $mwClass) {
+                (new $mwClass())->handle();
+            }
 
             $this->call($route['handler'], $params);
             return;
