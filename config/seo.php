@@ -9,6 +9,7 @@ class Seo
     private string $ogImage     = '';
     private string $ogType      = 'website';
     private array  $jsonLd      = [];
+    private bool   $noindex     = false;
 
     private static array $defaults = [
         'title'       => 'Codentra — Code · Automate · Scale',
@@ -47,6 +48,10 @@ class Seo
         $out  = "<title>{$title}</title>\n";
         $out .= "<meta name=\"description\" content=\"{$desc}\">\n";
         $out .= "<link rel=\"canonical\" href=\"{$canonical}\">\n";
+
+        if ($this->noindex) {
+            $out .= "<meta name=\"robots\" content=\"noindex,follow\">\n";
+        }
 
         // Open Graph
         $out .= "<meta property=\"og:type\"        content=\"{$this->ogType}\">\n";

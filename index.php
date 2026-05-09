@@ -71,8 +71,9 @@ $router->get('/services',    [\Controllers\ServicesController::class, 'index']);
 $router->get('/about',       [\Controllers\AboutController::class,    'index']);
 $router->get('/blog',        [\Controllers\BlogController::class,     'index']);
 $router->get('/blog/{slug}', [\Controllers\BlogController::class,     'single']);
-$router->get('/contact',     [\Controllers\ContactController::class,  'index']);
-$router->post('/contact',    [\Controllers\ContactController::class,  'submit']);
+$router->get('/contact',         [\Controllers\ContactController::class, 'index']);
+$router->post('/contact',        [\Controllers\LeadController::class,    'submit']);
+$router->get('/contact/thanks',  [\Controllers\LeadController::class,    'thanks']);
 $router->get('/privacy',     [\Controllers\LegalController::class,    'privacy']);
 $router->get('/terms',       [\Controllers\LegalController::class,    'terms']);
 

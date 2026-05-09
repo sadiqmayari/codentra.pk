@@ -981,3 +981,52 @@ body:not(.is-home) .site-header {
 .error-page__title { font-size: var(--fs-xl); margin-bottom: 1rem; }
 .error-page__sub   { color: var(--clr-muted); margin-bottom: 2rem; }
 .error-page__links { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; }
+
+/* ── Contact thanks page ────────────────────────────────────────────────── */
+.thanks {
+  min-height: 80vh;
+  padding-top: calc(var(--header-h) + 4rem);
+  padding-bottom: 5rem;
+  background: radial-gradient(ellipse at center top, rgba(42,157,143,.18) 0%, transparent 60%), var(--clr-bg);
+}
+.thanks__inner {
+  max-width: 640px;
+  text-align: center;
+  margin-inline: auto;
+}
+.thanks__icon {
+  width: 72px; height: 72px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--clr-accent);
+  background: rgba(42,157,143,.14);
+  border-color: rgba(42,157,143,.45);
+}
+.thanks__icon svg { width: 32px; height: 32px; }
+.thanks__title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  letter-spacing: -.02em;
+  margin-bottom: 1rem;
+}
+.thanks__sub {
+  color: var(--clr-muted);
+  font-size: var(--fs-md);
+  font-weight: 300;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+}
+.thanks__sub strong { color: var(--clr-text); font-weight: 500; }
+.thanks__next {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .75rem;
+  margin-bottom: 2rem;
+}
+.thanks__small {
+  color: var(--clr-muted);
+  font-size: var(--fs-xs);
+}
+.thanks__small a { color: var(--clr-accent); }
