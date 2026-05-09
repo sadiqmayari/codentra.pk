@@ -267,3 +267,73 @@ Engine: `InnoDB` · Collation: `utf8mb4_unicode_ci`
 3. **CSP `connect-src`** — must include `https://cdnjs.cloudflare.com` if Three.js or any CDN script is used.
 
 4. **Hostinger filesystem case-sensitive** — Linux filesystem; `Image.PNG` ≠ `image.png`. Always lowercase asset filenames.
+
+---
+
+## Performance Architecture
+
+> **Locked in Phase 3.5 (commit `9b72ce2`).** These patterns lifted home-page mobile Lighthouse from ~77 toward 90+. Future phases must preserve them — adding pages, components, or services should *follow* this architecture, never replace it. If a real performance win requires changing one of these, measure first, then update both this section and the `project_perf_optimizations.md` memory.
+
+### 1. Deferred Three.js (LCP-first hero)
+
+The hero's LCP background is a pure-CSS radial gradient on `.hero` — Three.js is purely decorative on top.
+
+- `views/layouts/main.php` schedules `import('/public/js/three-scene.js')` on `window.load` → `requestIdleCallback(start, { timeout: 1500 })`, falling back to `setTimeout(start, 100)`.
+- The canvas (`#hero-canvas`) starts at `opacity: 0` and gets `.is-ready` once `init()` resolves, fading in over 600ms.
+- `prefers-reduced-motion: reduce` skips the import entirely and force-shows the canvas (no animation).
+- `public/js/three-scene.js` itself is tuned: 800 desktop / 400 mobile particles, `IcosahedronGeometry(_, 0)`, `pixelRatio` capped at 1.5, first paint deferred one `rAF`, and the loop pauses on both `IntersectionObserver` (off-screen) and `visibilitychange` (`document.hidden`).
+
+**Don't:** import `three-scene.js` from a `<script type="module">` in `<head>`, raise the particle count, raise the icosahedron detail, raise the pixel-ratio cap, or remove the visibility-pause.
+
+### 2. Critical CSS pattern
+
+- `views/partials/critical-css.php` (~3.5KB) is inlined in `<head>` and covers tokens, reset, header, hero, buttons, skip-link, and `[data-reveal]` base styles.
+- Full `public/css/style.css` loads async: `<link rel="preload" href="…?v=…" as="style" onload="this.onload=null;this.rel='stylesheet'">` with a `<noscript>` fallback.
+- The 400 and 700 `@font-face` declarations live in *both* the critical block and `style.css` so text renders correctly during the async window.
+
+**Don't:** add a synchronous `<link rel="stylesheet">` for `style.css`, let `critical-css.php` grow past ~5KB (defeats the point), or duplicate non-critical rules in the inlined block.
+
+**Do:** when adding a new above-the-fold component (e.g., a different landing-page hero), extend `critical-css.php` with the minimum rules to render it, *not* the full component CSS.
+
+### 3. Font preload strategy
+
+- Self-hosted Ubuntu WOFF2 in `public/fonts/` (latin range only).
+- Only `ubuntu-400.woff2` is `<link rel="preload">`-ed in the layout.
+- `font-display`: `swap` for 400 + 700 (visible above-the-fold text), `optional` for 300 + 500 (no FOUT/CLS if uncached — system fallback is acceptable).
+
+**Don't:** preload more weights, switch 300/500 back to `swap`, or load fonts from Google's CDN.
+
+### 4. Immutable caching
+
+`.htaccess` policy (paired with `?v=filemtime` cache-busting in markup):
+
+```apache
+<FilesMatch "\.(?:css|js|woff2|webp|svg|jpg|jpeg|png|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+</FilesMatch>
+<FilesMatch "\.(?:html|php)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+</FilesMatch>
+```
+
+The `?v=` query string self-invalidates the URL whenever a file's mtime changes, so `immutable` is safe. Any new asset type that's referenced with `?v=` versioning should be added to the `FilesMatch` list.
+
+**Don't:** drop `immutable`, shorten `max-age` for fingerprinted assets, or cache HTML responses (admin and CSRF-bearing pages must revalidate).
+
+### 5. `.htaccess` restoration
+
+The full `.htaccess` (compression, `mod_expires`, `mod_headers`, security headers, immutable cache, rewrite-to-`index.php`) was previously stripped in commit `8ff87fc deploy` and restored in `9b72ce2`. The block order matters: rewrite first, then compression, then expires, then headers.
+
+Required headers (do not remove):
+
+- `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: SAMEORIGIN`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+**Don't:** simplify `.htaccess` "to debug routing" — the full file is the production contract. If routing is broken, fix the rewrite block in place.
+
+---
+
+**Phase rule.** When a future phase touches the layout, the hero, asset pipeline, or `.htaccess`, re-read this section first. If the change appears to require undoing any of the above, stop and confirm with the user — performance regressions here are far more expensive than the change usually is.
