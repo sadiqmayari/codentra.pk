@@ -3,12 +3,15 @@
  *  Design tokens locked in CLAUDE.md. Mobile-first. Breakpoints: 640/768/1024/1280.
  * ========================================================================== */
 
-/* ── Fonts ─────────────────────────────────────────────────────────────── */
+/* ── Fonts ─────────────────────────────────────────────────────────────── *
+ * Note: 400 and 700 are also declared in critical-css.php so they apply
+ * before this stylesheet loads. 300 and 500 use `optional` to prevent any
+ * FOUT/CLS — if the font isn't cached, the system fallback stays.          */
 @font-face {
   font-family: 'Ubuntu';
   font-style: normal;
   font-weight: 300;
-  font-display: swap;
+  font-display: optional;
   src: url('/public/fonts/ubuntu-300.woff2') format('woff2');
 }
 @font-face {
@@ -22,7 +25,7 @@
   font-family: 'Ubuntu';
   font-style: normal;
   font-weight: 500;
-  font-display: swap;
+  font-display: optional;
   src: url('/public/fonts/ubuntu-500.woff2') format('woff2');
 }
 @font-face {

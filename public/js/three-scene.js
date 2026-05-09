@@ -28,11 +28,13 @@ export async function init(canvas) {
     alpha: true,
     powerPreference: 'low-power',
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.setClearColor(0x000000, 0);
 
   // ── Particle field ──────────────────────────────────────────────────────
-  const particleCount = window.innerWidth < 640 ? 400 : 900;
+  // Note: spec asked for 1500 desktop / 800 mobile based on a 3000 baseline.
+  // Current baseline is already 900/400 — going slightly lower as a perf pass.
+  const particleCount = window.innerWidth < 768 ? 400 : 800;
   const positions     = new Float32Array(particleCount * 3);
 
   for (let i = 0; i < particleCount; i++) {
@@ -57,7 +59,7 @@ export async function init(canvas) {
   scene.add(particles);
 
   // ── Floating wireframe icosahedron ──────────────────────────────────────
-  const icoGeo = new THREE.IcosahedronGeometry(2.2, 1);
+  const icoGeo = new THREE.IcosahedronGeometry(2.2, 0);
   const icoMat = new THREE.MeshBasicMaterial({
     color: ACCENT_COLOR,
     wireframe: true,
@@ -98,12 +100,16 @@ export async function init(canvas) {
   resize();
   window.addEventListener('resize', resize);
 
-  // ── Pause when off-screen ───────────────────────────────────────────────
+  // ── Pause when off-screen or tab hidden ────────────────────────────────
   let isVisible = true;
+  let tabActive = !document.hidden;
   const visIo = new IntersectionObserver(entries => {
     isVisible = entries[0].isIntersecting;
   });
   visIo.observe(canvas);
+
+  const onVisibility = () => { tabActive = !document.hidden; };
+  document.addEventListener('visibilitychange', onVisibility);
 
   // ── Animate ─────────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
@@ -111,7 +117,7 @@ export async function init(canvas) {
 
   const animate = () => {
     rafId = requestAnimationFrame(animate);
-    if (!isVisible) return;
+    if (!isVisible || !tabActive) return;
 
     const t = clock.getElapsedTime();
 
@@ -129,12 +135,14 @@ export async function init(canvas) {
     renderer.render(scene, camera);
   };
 
-  animate();
+  // Defer first paint by one frame so the main thread can finish settling
+  requestAnimationFrame(animate);
 
   // ── Cleanup ─────────────────────────────────────────────────────────────
   return () => {
     cancelAnimationFrame(rafId);
     window.removeEventListener('resize', resize);
+    document.removeEventListener('visibilitychange', onVisibility);
     visIo.disconnect();
     particleGeo.dispose();
     particleMat.dispose();

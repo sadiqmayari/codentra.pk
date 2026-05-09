@@ -5,6 +5,8 @@
  */
 $cssVer = @filemtime(PUBLIC_PATH . '/css/style.css') ?: time();
 $jsVer  = @filemtime(PUBLIC_PATH . '/js/main.js')    ?: time();
+$cssHref = '/public/css/style.css?v=' . $cssVer;
+$jsHref  = '/public/js/main.js?v=' . $jsVer;
 $isHome = ($_SERVER['REQUEST_URI'] ?? '/') === '/' || ($_SERVER['REQUEST_URI'] ?? '/') === '';
 ?>
 <!DOCTYPE html>
@@ -20,10 +22,17 @@ $isHome = ($_SERVER['REQUEST_URI'] ?? '/') === '/' || ($_SERVER['REQUEST_URI'] ?
   <link rel="icon" type="image/svg+xml" href="/public/images/favicon.svg">
   <link rel="apple-touch-icon" href="/public/images/apple-touch-icon.png">
 
-  <link rel="preload" as="font" type="font/woff2" href="/public/fonts/ubuntu-400.woff2" crossorigin>
-  <link rel="preload" as="font" type="font/woff2" href="/public/fonts/ubuntu-700.woff2" crossorigin>
+  <?php if ($isHome): ?>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <?php endif; ?>
 
-  <link rel="stylesheet" href="/public/css/style.css?v=<?= $cssVer ?>">
+  <link rel="preload" as="font" type="font/woff2" href="/public/fonts/ubuntu-400.woff2" crossorigin>
+
+  <?php require VIEW_PATH . '/partials/critical-css.php'; ?>
+
+  <link rel="preload" href="<?= $cssHref ?>" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="<?= $cssHref ?>"></noscript>
 </head>
 <body class="<?= $isHome ? 'is-home' : '' ?>">
 
@@ -37,19 +46,42 @@ $isHome = ($_SERVER['REQUEST_URI'] ?? '/') === '/' || ($_SERVER['REQUEST_URI'] ?
 
   <?php require VIEW_PATH . '/partials/footer.php'; ?>
 
-  <script src="/public/js/main.js?v=<?= $jsVer ?>" defer></script>
+  <script src="<?= $jsHref ?>" defer></script>
 
   <?php if ($isHome): ?>
-    <script type="module">
-      // Three.js scene loaded only on home, only when motion is allowed
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const heroCanvas = document.getElementById('hero-canvas');
-        if (heroCanvas) {
+    <script>
+      // Defer Three.js until after LCP. Static CSS gradient is the LCP background;
+      // canvas fades in with .is-ready when WebGL is initialized.
+      (function () {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        var canvas = document.getElementById('hero-canvas');
+        if (!canvas) return;
+
+        var start = function () {
           import('/public/js/three-scene.js')
-            .then(m => m.init(heroCanvas))
-            .catch(err => console.warn('three-scene load failed:', err));
+            .then(function (m) {
+              return m.init(canvas);
+            })
+            .then(function () {
+              canvas.classList.add('is-ready');
+            })
+            .catch(function (err) { console.warn('three-scene load failed:', err); });
+        };
+
+        var schedule = function () {
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(start, { timeout: 1500 });
+          } else {
+            setTimeout(start, 100);
+          }
+        };
+
+        if (document.readyState === 'complete') {
+          schedule();
+        } else {
+          window.addEventListener('load', schedule, { once: true });
         }
-      }
+      })();
     </script>
   <?php endif; ?>
 
