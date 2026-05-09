@@ -70,7 +70,11 @@ class LeadController extends \Core\Controller
             $leadId = $lead->submit($input);
             error_log("[LEAD] saved id={$leadId} source={$input['source']} email={$input['email']} ip=" . \Core\Request::clientIp());
         } catch (\Throwable $e) {
-            error_log('[LEAD] DB save failed: ' . $e->getMessage());
+            error_log(
+                "[LEAD] db-save-failed class=" . $e::class
+                . " msg=" . ($e->getMessage() !== '' ? $e->getMessage() : '<empty>')
+                . " at "  . $e->getFile() . ':' . $e->getLine()
+            );
             $this->flashError(
                 "We couldn't save your message just now. Please email "
                 . SITE_EMAIL . ' directly — sorry for the inconvenience.'
@@ -80,14 +84,17 @@ class LeadController extends \Core\Controller
         }
 
         // ── 6. Send notification email (graceful — never blocks success) ───────
+        // Order: validate → save → mail → log result → redirect.
+        // mail() MUST be called before any redirect; the redirect's exit() would
+        // otherwise tear down the script before mail() runs.
+        error_log("[LEAD] pre-mail-call id={$leadId}");
         $emailOk = $this->sendNotificationEmail($leadId, $input);
-        if (!$emailOk) {
-            error_log("[LEAD] email notification failed for id={$leadId} (lead is still saved)");
-        }
+        error_log("[LEAD] post-mail-call id={$leadId} email_ok=" . ($emailOk ? '1' : '0'));
 
         // ── 7. Done — rotate CSRF and redirect to thanks page ──────────────────
         \Core\Csrf::rotate();
         $this->markJustSubmitted($input);
+        error_log("[LEAD] redirecting-to-thanks id={$leadId}");
         $this->redirect('/contact/thanks');
     }
 
@@ -150,19 +157,57 @@ class LeadController extends \Core\Controller
      * Sends the notification email using PHP's built-in mail().
      * Returns true on success, false otherwise — caller decides what to do.
      * Never throws.
+     *
+     * Every step logs to error_log() with a [LEAD] prefix so production
+     * incidents are reproducible from logs alone:
+     *   mail-block-entered     → method actually invoked
+     *   mail-headers-built     → subject + body + headers constructed OK
+     *   mail-call-result       → mail() returned (with bool + last error)
+     *   mail-block-exited      → final reason (success | mail-returned-false | exception)
+     * If you see "saved" but not "mail-block-entered", the call to this
+     * method is being skipped (control-flow bug above). If you see
+     * "mail-block-entered" but not "mail-headers-built", emailBody() is
+     * throwing. Etc.
      */
     private function sendNotificationEmail(int $leadId, array $input): bool
     {
+        error_log("[LEAD] mail-block-entered id={$leadId}");
+
         try {
-            $to      = SITE_EMAIL;
-            $subject = $this->emailSubject($input);
+            $to       = SITE_EMAIL;
+            $fromAddr = 'noreply@codentra.pk';
+            $subject  = $this->emailSubject($input);
             [$body, $headers] = $this->emailBody($leadId, $input);
 
-            // Suppress PHP warning when no MTA is configured (e.g. local dev).
-            $ok = @mail($to, $subject, $body, $headers);
+            error_log(
+                "[LEAD] mail-headers-built id={$leadId} to={$to} from={$fromAddr}"
+                . " subject_len=" . strlen($subject)
+                . " body_len="    . strlen($body)
+                . " headers_len=" . strlen($headers)
+            );
+
+            // No `@` suppression — let PHP's native mail() warning go to the
+            // error log. That's normally where the actual delivery failure
+            // reason is reported (e.g. "sh: sendmail: not found").
+            error_clear_last();
+            $ok      = mail($to, $subject, $body, $headers);
+            $lastErr = error_get_last();
+
+            $errMsg = $lastErr['message'] ?? 'none';
+            error_log("[LEAD] mail-call-result id={$leadId} returned=" . ($ok ? 'true' : 'false') . " last_error={$errMsg}");
+
+            error_log("[LEAD] mail-block-exited id={$leadId} reason=" . ($ok ? 'success' : 'mail-returned-false'));
             return (bool) $ok;
         } catch (\Throwable $e) {
-            error_log('[LEAD] email exception: ' . $e->getMessage());
+            // Always log: class, message, file, line. Anything less makes
+            // production incidents un-diagnosable from the log alone.
+            error_log(
+                "[LEAD] mail-exception id={$leadId}"
+                . " class=" . $e::class
+                . " msg="   . ($e->getMessage() !== '' ? $e->getMessage() : '<empty>')
+                . " at "    . $e->getFile() . ':' . $e->getLine()
+            );
+            error_log("[LEAD] mail-block-exited id={$leadId} reason=exception");
             return false;
         }
     }
