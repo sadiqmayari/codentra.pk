@@ -5,7 +5,7 @@ namespace Core;
 
 abstract class Controller
 {
-    protected Seo $seo;
+    protected \Seo $seo;
 
     public function __construct()
     {

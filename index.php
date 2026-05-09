@@ -1,6 +1,15 @@
 <?php
 declare(strict_types=1);
 
+// ── Built-in dev server: serve real files directly ───────────────────────────
+if (PHP_SAPI === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $file = __DIR__ . $path;
+    if ($path !== '/' && is_file($file)) {
+        return false; // let the built-in server serve the static asset
+    }
+}
+
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 require_once __DIR__ . '/config/constants.php';
 require_once __DIR__ . '/config/database.php';
@@ -57,8 +66,9 @@ spl_autoload_register(function (string $class): void {
 $router = new \Core\Router();
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-// (Populated as pages are built — see BUILD_PROMPTS.md)
-// $router->get('/',          [\Controllers\HomeController::class,     'index']);
+$router->get('/', [\Controllers\HomeController::class, 'index']);
+
+// (More routes added as pages are built — see BUILD_PROMPTS.md)
 // $router->get('/services',  [\Controllers\ServicesController::class, 'index']);
 // $router->get('/about',     [\Controllers\HomeController::class,     'about']);
 // $router->get('/blog',      [\Controllers\BlogController::class,     'index']);
