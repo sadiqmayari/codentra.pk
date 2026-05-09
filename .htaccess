@@ -1,16 +1,9 @@
-Options -Indexes -MultiViews
-DirectoryIndex index.php
-
 # ── URL Rewriting ────────────────────────────────────────────────────────────
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
 
-    # Allow direct access to real files/dirs
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-
-    # Block access to hidden/sensitive files
+    # Block access to hidden/sensitive files (these run unconditionally)
     RewriteRule ^\.env                  - [F,L]
     RewriteRule ^config/                - [F,L]
     RewriteRule ^src/                   - [F,L]
@@ -18,44 +11,11 @@ DirectoryIndex index.php
     RewriteRule ^sql/                   - [F,L]
     RewriteRule ^tools/                 - [F,L]
 
+    # Allow direct access to real files/dirs (CSS, JS, fonts, images)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
     # Route everything else to index.php
     RewriteRule ^ index.php [QSA,L]
-</IfModule>
-
-# ── Security Headers ─────────────────────────────────────────────────────────
-<IfModule mod_headers.c>
-    Header always set X-Content-Type-Options    "nosniff"
-    Header always set X-Frame-Options           "SAMEORIGIN"
-    Header always set X-XSS-Protection         "1; mode=block"
-    Header always set Referrer-Policy           "strict-origin-when-cross-origin"
-    Header always set Permissions-Policy        "camera=(), microphone=(), geolocation=()"
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    Header always set Content-Security-Policy   "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
-</IfModule>
-
-# ── Compression ───────────────────────────────────────────────────────────────
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json application/xml text/plain font/woff2
-</IfModule>
-
-# ── Browser Caching ───────────────────────────────────────────────────────────
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/html                  "access plus 1 hour"
-    ExpiresByType text/css                   "access plus 1 year"
-    ExpiresByType application/javascript     "access plus 1 year"
-    ExpiresByType image/webp                 "access plus 1 year"
-    ExpiresByType image/png                  "access plus 1 year"
-    ExpiresByType image/jpeg                 "access plus 1 year"
-    ExpiresByType image/svg+xml              "access plus 1 year"
-    ExpiresByType font/woff2                 "access plus 1 year"
-    ExpiresByType application/xml            "access plus 1 day"
-</IfModule>
-
-# ── PHP Settings ─────────────────────────────────────────────────────────────
-<IfModule mod_php.c>
-    php_flag display_errors     Off
-    php_flag log_errors         On
-    php_value upload_max_filesize 8M
-    php_value post_max_size       10M
 </IfModule>
