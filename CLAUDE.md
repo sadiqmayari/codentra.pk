@@ -357,4 +357,24 @@ quote request, etc.) should either reuse this controller with a new
 
 ## 🔧 Deferred Tasks
 
-- [ ] **Email deliverability** — Add SPF + DKIM + DMARC records to Cloudflare DNS (values from hPanel → Emails → info@codentra.pk → Configuration). Verify with mail-tester.com (target 9/10+). Optional: tighten lead notification email content per the prompt drafted in chat.
+- [ ] **Change admin password** — current seed password (Cdt!ra#9X$bozJ5nl8) was shared in chat history. Generate fresh Argon2id hash, update users.password_hash via phpMyAdmin. Or wait for Phase 10 settings UI. Until done, treat current credentials as compromised.
+- [ ] **Email deliverability** — Add SPF + DKIM + DMARC records to Cloudflare DNS (values from hPanel → Emails → info@codentra.pk → Configuration). Verify with mail-tester.com (target 9/10+).
+
+
+## ✅ Phases Complete
+
+- [x] Phase 1 — Foundation (live)
+- [x] Phase 2 — Database (live)
+- [x] Phase 3 — Layout + Home page (live)
+- [x] Phase 3.5 — Performance optimization (live)
+- [x] Phase 4 — Remaining public pages (live)  ← was this done? if so check it
+- [x] Phase 5 — Lead capture + email (live, email-to-spam known issue)
+- [x] Cloudflare integration + IP detection hardening (live)
+- [x] Phase 6 — Admin authentication (live)
+
+## ⏳ Phases Remaining
+
+- [ ] Phase 7 — Admin Dashboard
+- [ ] Phase 8 — Leads Management
+- [ ] Phase 9 — Blog Management
+- [ ] Phase 10 — Settings + final polish
