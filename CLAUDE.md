@@ -337,3 +337,18 @@ Required headers (do not remove):
 ---
 
 **Phase rule.** When a future phase touches the layout, the hero, asset pipeline, or `.htaccess`, re-read this section first. If the change appears to require undoing any of the above, stop and confirm with the user — performance regressions here are far more expensive than the change usually is.
+
+## Lead Capture Contract (Phase 5)
+
+- All lead submissions go to POST /contact → LeadController::submit()
+- Both home mini-form and full contact form use this single endpoint
+- Source field distinguishes them: 'contact-page' vs 'home-mini'
+- DB save is canonical; email is best-effort (failures logged, never block success)
+- Rate limit: 5/hour per IP (DB-backed, session fallback)
+- Honeypot field: silent success (do not change this UX)
+- Reply-To header set to lead's email — hitting reply in inbox replies to lead
+- Logging tag: [LEAD] for all events (saved/honeypot/db-failed/email-failed)
+
+DO NOT add another lead submission endpoint. Future forms (newsletter,
+quote request, etc.) should either reuse this controller with a new
+'source' value or be a separate controller for a different concept.
