@@ -66,8 +66,17 @@ abstract class Controller
     protected function abort(int $code = 404): never
     {
         http_response_code($code);
-        $view = VIEW_PATH . '/pages/errors/' . $code . '.php';
-        if (file_exists($view)) require $view;
+
+        $view     = 'errors/' . $code;
+        $viewFile = VIEW_PATH . '/pages/' . $view . '.php';
+
+        if (file_exists($viewFile)) {
+            $this->seo->set([
+                'title'     => $code . ' — Codentra',
+                'canonical' => SITE_URL . ($_SERVER['REQUEST_URI'] ?? '/'),
+            ]);
+            $this->render($view);
+        }
         exit;
     }
 }

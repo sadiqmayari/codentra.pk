@@ -6,8 +6,14 @@ namespace Core;
 class Router
 {
     private array $routes = [];
+    private array|null $fallbackHandler = null;
 
     // ── Registration ──────────────────────────────────────────────────────────
+
+    public function fallback(array $handler): void
+    {
+        $this->fallbackHandler = $handler;
+    }
 
     public function get(string $pattern, array|callable $handler): void
     {
@@ -89,6 +95,12 @@ class Router
     private function notFound(): void
     {
         http_response_code(404);
+
+        if ($this->fallbackHandler !== null) {
+            $this->call($this->fallbackHandler, []);
+            return;
+        }
+
         $view = VIEW_PATH . '/pages/errors/404.php';
         if (file_exists($view)) {
             require $view;

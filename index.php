@@ -66,15 +66,17 @@ spl_autoload_register(function (string $class): void {
 $router = new \Core\Router();
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-$router->get('/', [\Controllers\HomeController::class, 'index']);
+$router->get('/',            [\Controllers\HomeController::class,     'index']);
+$router->get('/services',    [\Controllers\ServicesController::class, 'index']);
+$router->get('/about',       [\Controllers\AboutController::class,    'index']);
+$router->get('/blog',        [\Controllers\BlogController::class,     'index']);
+$router->get('/blog/{slug}', [\Controllers\BlogController::class,     'single']);
+$router->get('/contact',     [\Controllers\ContactController::class,  'index']);
+$router->post('/contact',    [\Controllers\ContactController::class,  'submit']);
+$router->get('/privacy',     [\Controllers\LegalController::class,    'privacy']);
+$router->get('/terms',       [\Controllers\LegalController::class,    'terms']);
 
-// (More routes added as pages are built — see BUILD_PROMPTS.md)
-// $router->get('/services',  [\Controllers\ServicesController::class, 'index']);
-// $router->get('/about',     [\Controllers\HomeController::class,     'about']);
-// $router->get('/blog',      [\Controllers\BlogController::class,     'index']);
-// $router->get('/blog/{slug}',[\Controllers\BlogController::class,    'single']);
-// $router->get('/contact',   [\Controllers\ContactController::class,  'index']);
-// $router->post('/contact',  [\Controllers\ContactController::class,  'submit']);
+$router->fallback([\Controllers\ErrorController::class, 'notFound']);
 
 // ── Dispatch ──────────────────────────────────────────────────────────────────
 $router->dispatch();
