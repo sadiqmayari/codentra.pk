@@ -44,14 +44,18 @@ if (APP_DEBUG) {
 
 // ── Autoload controllers & models ─────────────────────────────────────────────
 spl_autoload_register(function (string $class): void {
-    // Strip namespace prefix if present
-    $class = str_replace(['Controllers\\', 'Models\\', 'Middleware\\', 'Core\\'], '', $class);
+    // Strip top-level namespace prefix if present, then translate any
+    // remaining namespace separators into directory separators so that
+    // sub-namespaces like Controllers\Admin\DashboardController resolve
+    // to src/Controllers/Admin/DashboardController.php.
+    $stripped = str_replace(['Controllers\\', 'Models\\', 'Middleware\\', 'Core\\'], '', $class);
+    $stripped = str_replace('\\', '/', $stripped);
 
     $locations = [
-        __DIR__ . '/src/Controllers/' . $class . '.php',
-        __DIR__ . '/src/Models/'      . $class . '.php',
-        __DIR__ . '/src/Middleware/'  . $class . '.php',
-        __DIR__ . '/src/Core/'        . $class . '.php',
+        __DIR__ . '/src/Controllers/' . $stripped . '.php',
+        __DIR__ . '/src/Models/'      . $stripped . '.php',
+        __DIR__ . '/src/Middleware/'  . $stripped . '.php',
+        __DIR__ . '/src/Core/'        . $stripped . '.php',
     ];
 
     foreach ($locations as $file) {
@@ -85,7 +89,7 @@ $router->post('/admin/logout',   [\Controllers\AuthController::class,  'logout']
 
 // Authenticated admin routes — middleware runs before the controller method.
 $router->get('/admin/dashboard',
-    [\Controllers\AdminController::class, 'dashboard'],
+    [\Controllers\Admin\DashboardController::class, 'index'],
     [\Middleware\AuthMiddleware::class]
 );
 

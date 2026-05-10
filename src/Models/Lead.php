@@ -73,48 +73,138 @@ class Lead extends \Core\Model
         return $out;
     }
 
-    public function recent(int $limit = 5): array
+    public function recent(int $n = 5): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT * FROM `leads` WHERE `deleted_at` IS NULL ORDER BY `created_at` DESC LIMIT {$limit}"
-        );
-        $stmt->execute();
-        return $stmt->fetchAll();
+        $n   = max(1, $n);
+        $sql = "SELECT * FROM `leads`
+                WHERE `deleted_at` IS NULL
+                ORDER BY `created_at` DESC
+                LIMIT {$n}";
+        $rows = $this->db->query($sql)->fetchAll();
+
+        // Decorate with a human-friendly relative time.
+        foreach ($rows as &$row) {
+            $row['created_human'] = \Core\Time::timeAgo($row['created_at'] ?? null);
+            $row['created_iso']   = \Core\Time::iso($row['created_at'] ?? null);
+        }
+        return $rows;
+    }
+
+    public function countActive(): int
+    {
+        return (int) $this->db->query(
+            "SELECT COUNT(*) FROM `leads`
+             WHERE `deleted_at` IS NULL AND `status` <> 'lost'"
+        )->fetchColumn();
     }
 
     public function newThisWeek(): int
     {
         $stmt = $this->db->prepare(
             "SELECT COUNT(*) FROM `leads`
-             WHERE `deleted_at` IS NULL AND `created_at` >= (NOW() - INTERVAL 7 DAY)"
+             WHERE `deleted_at` IS NULL
+               AND `status`     = 'new'
+               AND `created_at` >= ?"
         );
-        $stmt->execute();
+        $stmt->execute([date('Y-m-d H:i:s', time() - 7 * 86400)]);
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Daily lead counts for the last $days days, gap-filled so days
+     * with zero leads still appear (otherwise Chart.js would skip them
+     * and the x-axis would lie about the trend).
+     *
+     * @return array<int, array{date: string, count: int}>
+     */
     public function dailyCounts(int $days = 30): array
     {
+        $days  = max(1, $days);
+        $start = strtotime("-" . ($days - 1) . " days");
+        $today = strtotime('today');
+
+        // 1. Build the full date series (date => 0).
+        $series = [];
+        for ($t = $start; $t <= $today; $t += 86400) {
+            $series[date('Y-m-d', $t)] = 0;
+        }
+
+        // 2. One grouped query for the actual counts.
         $stmt = $this->db->prepare(
-            "SELECT DATE(`created_at`) AS `d`, COUNT(*) AS `n`
+            "SELECT DATE(`created_at`) AS `date`, COUNT(*) AS `count`
              FROM `leads`
-             WHERE `deleted_at` IS NULL AND `created_at` >= (CURDATE() - INTERVAL ? DAY)
-             GROUP BY DATE(`created_at`) ORDER BY `d` ASC"
+             WHERE `deleted_at` IS NULL AND `created_at` >= ?
+             GROUP BY DATE(`created_at`)"
         );
-        $stmt->execute([$days]);
-        return $stmt->fetchAll();
+        $stmt->execute([date('Y-m-d 00:00:00', $start)]);
+        foreach ($stmt->fetchAll() as $row) {
+            $key = (string) $row['date'];
+            if (isset($series[$key])) {
+                $series[$key] = (int) $row['count'];
+            }
+        }
+
+        // 3. Reshape into a list of {date, count} objects.
+        $out = [];
+        foreach ($series as $date => $count) {
+            $out[] = ['date' => $date, 'count' => $count];
+        }
+        return $out;
     }
 
-    public function conversionRate(): float
+    /**
+     * converted / (qualified + converted) * 100, rounded to 1 decimal.
+     * Returns null when the denominator is 0 — caller renders "—".
+     */
+    public function conversionRate(): ?float
     {
-        $total = (int) $this->db->query(
-            "SELECT COUNT(*) FROM `leads` WHERE `deleted_at` IS NULL"
-        )->fetchColumn();
-        if ($total === 0) return 0.0;
+        $stmt = $this->db->query(
+            "SELECT
+                SUM(CASE WHEN `status` = 'qualified' THEN 1 ELSE 0 END) AS qualified,
+                SUM(CASE WHEN `status` = 'converted' THEN 1 ELSE 0 END) AS converted
+             FROM `leads`
+             WHERE `deleted_at` IS NULL"
+        );
+        $row = $stmt->fetch();
+        $qualified = (int) ($row['qualified'] ?? 0);
+        $converted = (int) ($row['converted'] ?? 0);
 
-        $converted = (int) $this->db->query(
-            "SELECT COUNT(*) FROM `leads` WHERE `deleted_at` IS NULL AND `status` = 'converted'"
+        $denom = $qualified + $converted;
+        if ($denom === 0) return null;
+
+        return round(($converted / $denom) * 100, 1);
+    }
+
+    /**
+     * Percent change in lead volume this week (last 7d) vs the prior
+     * week (8–14d ago). Returns 0.0 when both windows are empty so the
+     * KPI card can show a neutral "0%" without dividing by zero.
+     */
+    public function weekDelta(): float
+    {
+        $now      = time();
+        $thisFrom = date('Y-m-d H:i:s', $now - 7  * 86400);
+        $prevFrom = date('Y-m-d H:i:s', $now - 14 * 86400);
+        $prevTo   = $thisFrom;
+
+        $thisCount = (int) $this->db->query(
+            "SELECT COUNT(*) FROM `leads`
+             WHERE `deleted_at` IS NULL
+               AND `created_at` >= " . $this->db->quote($thisFrom)
         )->fetchColumn();
 
-        return round(($converted / $total) * 100, 1);
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM `leads`
+             WHERE `deleted_at` IS NULL
+               AND `created_at` >= ?
+               AND `created_at` <  ?"
+        );
+        $stmt->execute([$prevFrom, $prevTo]);
+        $prevCount = (int) $stmt->fetchColumn();
+
+        if ($thisCount === 0 && $prevCount === 0) return 0.0;
+        if ($prevCount === 0) return 100.0; // came from nothing — present as +100%
+
+        return round((($thisCount - $prevCount) / $prevCount) * 100, 1);
     }
 }

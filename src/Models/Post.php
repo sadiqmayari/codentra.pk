@@ -27,7 +27,7 @@ class Post extends \Core\Model
 
     public function published(int $page = 1, int $perPage = 9, ?int $categoryId = null): array
     {
-        $where    = "p.`deleted_at` IS NULL AND p.`status` = 'published' AND p.`published_at` <= NOW()";
+        $where    = "p.`deleted_at` IS NULL AND p.`status` = 'published' AND p.`published_at` <= CURRENT_TIMESTAMP";
         $bindings = [];
 
         if ($categoryId !== null) {
@@ -46,7 +46,7 @@ class Post extends \Core\Model
 
     public function countPublished(?int $categoryId = null): int
     {
-        $where    = "`deleted_at` IS NULL AND `status` = 'published' AND `published_at` <= NOW()";
+        $where    = "`deleted_at` IS NULL AND `status` = 'published' AND `published_at` <= CURRENT_TIMESTAMP";
         $bindings = [];
         if ($categoryId !== null) {
             $where     .= " AND `category_id` = ?";
