@@ -374,7 +374,11 @@ quote request, etc.) should either reuse this controller with a new
 
 ## ⏳ Phases Remaining
 
-- [ ] Phase 7 — Admin Dashboard
-- [ ] Phase 8 — Leads Management
 - [ ] Phase 9 — Blog Management
 - [ ] Phase 10 — Settings + final polish
+
+- [ ] **Phase 9.5: Scheduled publishing** — set future published_at, cron auto-publishes
+- [ ] **Phase 9.6: Tags & full-text search** — tags column, search /blog
+- [ ] **Phase 9.7: Multi-author** — editor users, post ownership
+- [ ] **Phase 9.8: Media library** — reusable image library separate from per-post uploads
+- [ ] **Phase 9.9: Comments** — moderation, threaded comments
