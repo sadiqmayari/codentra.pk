@@ -12,9 +12,9 @@ require_once __DIR__ . '/../config/constants.php';
 $pdo = new PDO('sqlite:' . ($_ENV['DB_NAME'] ?? __DIR__ . '/../storage/test.db'));
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Ensure the posts table exists in the local sqlite test DB. The
-// production migration is the canonical MySQL schema; this is the
-// minimum sqlite version of it for local testing.
+// Ensure auxiliary tables exist in the local sqlite test DB. The
+// production migrations under sql/migrations/ are the canonical MySQL
+// schema; this is the minimum sqlite version of them for local testing.
 $pdo->exec(<<<SQL
 CREATE TABLE IF NOT EXISTS posts (
   id             INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,11 +33,23 @@ CREATE TABLE IF NOT EXISTS posts (
   updated_at     TEXT NOT NULL,
   deleted_at     TEXT
 );
+
+CREATE TABLE IF NOT EXISTS lead_history (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  lead_id    INTEGER NOT NULL,
+  user_id    INTEGER,
+  event_type TEXT NOT NULL,
+  event_data TEXT,
+  created_at TEXT NOT NULL,
+  FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_lead_history_lead ON lead_history(lead_id, created_at DESC);
 SQL);
 
 // Wipe + reseed for deterministic test runs.
 $pdo->exec('DELETE FROM leads');
 $pdo->exec('DELETE FROM posts');
+$pdo->exec('DELETE FROM lead_history');
 
 $names    = ['Aisha K.','Bilal M.','Carla J.','Daniyal S.','Erum F.','Faisal R.','Gulshan A.','Hassan Z.','Imran T.','Junaid B.','Kiran P.','Laila Q.','Mehmood G.','Nadia W.','Omar V.'];
 $services = ['web-dev', 'shopify', 'ecommerce-mgmt', 'automation', 'other'];
@@ -86,6 +98,13 @@ $counts = $pdo->query(
 )->fetchAll(PDO::FETCH_ASSOC);
 echo "✓ Seeded " . array_sum(array_column($counts, 'n')) . " leads:\n";
 foreach ($counts as $r) printf("    %-10s  %d\n", $r['status'], $r['n']);
+
+// Backfill a 'created' history event per seeded lead so the Activity
+// timeline on the lead-detail page isn't blank.
+$pdo->exec(
+    "INSERT INTO lead_history (lead_id, user_id, event_type, event_data, created_at)
+     SELECT id, NULL, 'created', NULL, created_at FROM leads"
+);
 
 // ── Posts ───────────────────────────────────────────────────────────────────
 $samplePosts = [

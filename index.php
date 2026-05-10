@@ -93,6 +93,32 @@ $router->get('/admin/dashboard',
     [\Middleware\AuthMiddleware::class]
 );
 
+// ── Admin: Leads management (Phase 8) — all behind AuthMiddleware ──────────
+$router->get('/admin/leads',
+    [\Controllers\Admin\LeadsController::class, 'index'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->get('/admin/leads/export',
+    [\Controllers\Admin\LeadsController::class, 'export'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->get('/admin/leads/{id}',
+    [\Controllers\Admin\LeadsController::class, 'show'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/leads/{id}/status',
+    [\Controllers\Admin\LeadsController::class, 'updateStatus'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/leads/{id}/notes',
+    [\Controllers\Admin\LeadsController::class, 'saveNotes'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/leads/{id}/delete',
+    [\Controllers\Admin\LeadsController::class, 'delete'],
+    [\Middleware\AuthMiddleware::class]
+);
+
 $router->fallback([\Controllers\ErrorController::class, 'notFound']);
 
 // ── Dispatch ──────────────────────────────────────────────────────────────────

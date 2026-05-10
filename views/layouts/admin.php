@@ -50,6 +50,15 @@ unset($_SESSION['_flash']);
     </div>
   </div>
 
+  <?php
+    // Per-route admin JS modules. Vanilla, no framework — kept narrow.
+    $adminUri = $_SERVER['REQUEST_URI'] ?? '';
+    if (str_starts_with($adminUri, '/admin/leads')):
+      $leadsJsVer = @filemtime(PUBLIC_PATH . '/js/admin-leads.js') ?: time();
+  ?>
+    <script src="/public/js/admin-leads.js?v=<?= $leadsJsVer ?>" defer></script>
+  <?php endif; ?>
+
   <script>
     (function () {
       var btn  = document.querySelector('[data-admin-drawer-toggle]');
