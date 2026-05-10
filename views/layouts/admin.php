@@ -25,6 +25,26 @@ unset($_SESSION['_flash']);
 
   <link rel="preload" href="<?= $cssHref ?>" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="<?= $cssHref ?>"></noscript>
+
+  <?php
+    // FontAwesome 4 — only on the post-edit screen. EasyMDE's toolbar uses
+    // FA glyph classes; we load FA ourselves (autoDownloadFontAwesome: false
+    // in admin-posts.js) so:
+    //   1. CSP only has to allow cdn.jsdelivr.net (no maxcdn.bootstrapcdn.com)
+    //   2. The version is pinned (4.7.0) and verified by SRI — bumping
+    //      the version means re-computing the integrity hash:
+    //        curl -s https://cdn.jsdelivr.net/npm/font-awesome@<VER>/css/font-awesome.min.css \
+    //          | openssl dgst -sha384 -binary | openssl base64 -A
+    //   3. No supply-chain risk from a "latest" tag.
+    if (str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/admin/posts')):
+  ?>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+      integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer">
+  <?php endif; ?>
 </head>
 <body class="is-admin">
 

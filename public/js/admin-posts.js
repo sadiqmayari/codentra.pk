@@ -246,7 +246,12 @@
       autofocus: false,
       spellChecker: false,
       status: ['lines', 'words'],
-      autoDownloadFontAwesome: true,
+      // We load FontAwesome ourselves from cdn.jsdelivr.net (already in
+      // CSP allow-list) with SRI integrity. EasyMDE's default loader pulls
+      // an UN-PINNED build from maxcdn.bootstrapcdn.com — supply-chain
+      // risk + extra origin on the CSP allow-list. See views/layouts/
+      // admin.php for the pinned <link>.
+      autoDownloadFontAwesome: false,
       previewClass: ['editor-preview', 'admin-mde-preview'],
       previewRender: function (plaintext) {
         if (typeof window.marked !== 'undefined') {

@@ -65,9 +65,20 @@
     Header always set Permissions-Policy        "camera=(), microphone=(), geolocation=()"
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
-    # Content Security Policy — script CDNs are allow-listed explicitly:
-    #   cdnjs.cloudflare.com  → Three.js (home hero)
-    #   cdn.jsdelivr.net      → Chart.js (admin dashboard)
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; 
-    font-src 'self' data: https://cdn.jsdelivr.net https://use.fontawesome.com https://maxcdn.bootstrapcdn.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://use.fontawesome.com https://maxcdn.bootstrapcdn.com;
+    # Content Security Policy — origins allow-listed explicitly. Keep the
+    # value on ONE line; Apache parses each header value as a single string
+    # and a stray newline silently splits the policy.
+    #
+    # Origins in use:
+    #   cdnjs.cloudflare.com          → Three.js (home hero)
+    #   cdn.jsdelivr.net              → Chart.js (admin dashboard),
+    #                                    EasyMDE + marked + FontAwesome
+    #                                    (admin posts editor, version-pinned
+    #                                    + SRI in views/layouts/admin.php)
+    #   static.cloudflareinsights.com → Cloudflare Web Analytics beacon
+    #                                    (auto-injected by the CF edge)
+    #
+    # `*-elem` directives are spelled out alongside `script-src` / `style-src`
+    # so browsers don't fall back to the parent directive and emit a warning.
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; script-src-elem 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src-elem 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
 </IfModule>
