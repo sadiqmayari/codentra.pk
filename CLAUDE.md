@@ -371,6 +371,8 @@ quote request, etc.) should either reuse this controller with a new
 - [x] Phase 5 — Lead capture + email (live, email-to-spam known issue)
 - [x] Cloudflare integration + IP detection hardening (live)
 - [x] Phase 6 — Admin authentication (live)
+- [ ] Phase 7 — Admin Dashboard (live)
+- [ ] Phase 8 — Leads Management (live)
 
 ## ⏳ Phases Remaining
 
