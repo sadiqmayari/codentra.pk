@@ -15,6 +15,10 @@ composer.lock
 !/cache/pages/.gitkeep
 /uploads/*
 !/uploads/.gitkeep
+!/uploads/.htaccess
+!/uploads/posts/
+/uploads/posts/*
+!/uploads/posts/.gitkeep
 /storage/*
 !/storage/.gitkeep
 *.log

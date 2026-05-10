@@ -1855,3 +1855,294 @@ body.admin-drawer-open .admin-sidebar { transform: translateX(0); }
   justify-content: flex-end;
   gap: .65rem;
 }
+
+/* ============================================================================
+ * === Admin Posts ===
+ *  List + edit screens. The EasyMDE override block at the end is the
+ *  most fragile part — its selectors target third-party CSS.
+ * ========================================================================== */
+
+/* --- Posts list table --- */
+.posts-table__slug {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .72rem;
+  color: var(--clr-muted);
+  margin-top: .15rem;
+}
+
+/* --- Edit page header --- */
+.post-edit__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* --- Two-column edit layout --- */
+.post-edit__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .post-edit__grid { grid-template-columns: 7fr 3fr; gap: 1.25rem; align-items: start; }
+  .post-edit__side { position: sticky; top: 76px; align-self: start; }
+}
+
+.post-edit__main .lead-card { margin-bottom: 1rem; }
+.post-edit__side .lead-card { margin-bottom: 1rem; }
+
+/* --- Title input (visually larger) --- */
+.post-edit__title-input {
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+
+/* --- Slug URL preview --- */
+.post-edit__url-preview {
+  margin-top: .5rem;
+  color: var(--clr-muted);
+  font-size: var(--fs-xs);
+}
+.post-edit__url-preview code {
+  background: rgba(255,255,255,.04);
+  padding: .25rem .55rem;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  color: var(--clr-text);
+}
+
+/* --- Char counter (form helper) --- */
+.form-field__counter {
+  font-size: .65rem;
+  color: var(--clr-muted);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: .5rem;
+}
+
+/* --- Status radios --- */
+.post-edit__radio {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  padding: .65rem .75rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  margin-bottom: .5rem;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+.post-edit__radio:hover { background: var(--clr-surface); border-color: rgba(42,157,143,.3); }
+.post-edit__radio input[type="radio"] {
+  margin-top: 3px;
+  accent-color: var(--clr-accent);
+}
+.post-edit__radio span      { font-size: var(--fs-sm); }
+.post-edit__radio span small { display: block; color: var(--clr-muted); font-size: .7rem; margin-top: .15rem; }
+.post-edit__radio:has(input:checked) {
+  border-color: rgba(42,157,143,.5);
+  background: rgba(42,157,143,.08);
+}
+
+/* --- Featured image card --- */
+.post-edit__image-preview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 2px dashed var(--clr-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.2);
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+.post-edit__image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.post-edit__image-preview.has-image { border-style: solid; cursor: default; }
+.post-edit__image-zone.is-drag-over .post-edit__image-preview,
+.post-edit__image-card.is-drag-over .post-edit__image-preview {
+  border-color: var(--clr-accent);
+  background: rgba(42,157,143,.1);
+}
+.post-edit__image-empty {
+  text-align: center;
+  color: var(--clr-muted);
+  font-size: var(--fs-xs);
+  padding: 1rem;
+  pointer-events: none;
+}
+.post-edit__image-empty strong {
+  display: block;
+  color: var(--clr-text);
+  font-size: var(--fs-sm);
+  margin-bottom: .25rem;
+}
+.post-edit__image-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-top: .75rem;
+  flex-wrap: wrap;
+}
+.post-edit__image-remove {
+  font-size: var(--fs-xs);
+  color: var(--clr-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  cursor: pointer;
+}
+.post-edit__image-remove input { accent-color: var(--clr-cta); }
+.post-edit__image-hint {
+  font-size: var(--fs-xs);
+  color: var(--clr-muted);
+  margin-top: .65rem;
+}
+
+/* --- SEO panel collapsed/expanded --- */
+.post-edit__seo-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  color: var(--clr-text);
+  padding: 0;
+}
+.post-edit__seo-toggle[aria-expanded="true"] span:last-child { transform: rotate(180deg); }
+.post-edit__seo-toggle span:last-child { transition: transform var(--t-fast); }
+.post-edit__seo-body { margin-top: 1rem; display: grid; gap: .85rem; }
+
+/* --- Sticky save block --- */
+.post-edit__sticky-save {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  padding-top: .5rem;
+}
+.post-edit__save-btn { width: 100%; justify-content: center; padding: .85rem 1rem; }
+.post-edit__delete {
+  background: transparent;
+  border: 0;
+  color: var(--clr-muted);
+  font-size: var(--fs-xs);
+  text-align: center;
+  padding: .5rem;
+  cursor: pointer;
+}
+.post-edit__delete:hover { color: #fadcd2; }
+
+/* ============================================================================
+ *  EasyMDE dark-theme overrides — touches third-party selectors.
+ *  When upgrading EasyMDE, re-test that these still align. Selectors
+ *  prefixed with .EasyMDEContainer / .editor-toolbar are upstream.
+ * ========================================================================== */
+
+.EasyMDEContainer {
+  background: var(--clr-bg-2);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.EasyMDEContainer .CodeMirror {
+  background: var(--clr-bg-2);
+  color: var(--clr-text);
+  border: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .92rem;
+  line-height: 1.6;
+  min-height: 320px;
+}
+.EasyMDEContainer .CodeMirror-cursor { border-color: var(--clr-accent); }
+.EasyMDEContainer .CodeMirror-selected { background: rgba(42,157,143,.18) !important; }
+.EasyMDEContainer .CodeMirror-line::selection,
+.EasyMDEContainer .CodeMirror-line ::selection { background: rgba(42,157,143,.25); }
+.EasyMDEContainer .CodeMirror-gutters { background: var(--clr-bg-2); border-right: 1px solid var(--clr-border); }
+.EasyMDEContainer .editor-toolbar {
+  background: var(--clr-bg);
+  border: 0;
+  border-bottom: 1px solid var(--clr-border);
+  opacity: 1;
+}
+.EasyMDEContainer .editor-toolbar button {
+  color: var(--clr-muted) !important;
+  border-radius: 4px;
+}
+.EasyMDEContainer .editor-toolbar button:hover,
+.EasyMDEContainer .editor-toolbar button.active {
+  background: rgba(42,157,143,.15) !important;
+  color: var(--clr-accent) !important;
+  border-color: transparent !important;
+}
+.EasyMDEContainer .editor-toolbar i.separator { border-color: var(--clr-border); }
+.EasyMDEContainer .editor-statusbar {
+  background: var(--clr-bg);
+  color: var(--clr-muted);
+  border-top: 1px solid var(--clr-border);
+  font-size: var(--fs-xs);
+}
+.EasyMDEContainer .editor-preview,
+.EasyMDEContainer .editor-preview-side {
+  background: var(--clr-bg-2);
+  color: var(--clr-text);
+  padding: 1.25rem;
+  font-family: 'Ubuntu', system-ui, sans-serif;
+}
+.EasyMDEContainer .editor-preview h1,
+.EasyMDEContainer .editor-preview h2,
+.EasyMDEContainer .editor-preview h3 {
+  color: var(--clr-text);
+  letter-spacing: -.02em;
+  margin-block: 1.25rem .65rem;
+}
+.EasyMDEContainer .editor-preview h2 { font-size: var(--fs-lg); }
+.EasyMDEContainer .editor-preview h3 { font-size: var(--fs-md); }
+.EasyMDEContainer .editor-preview p { margin-bottom: 1rem; line-height: 1.7; color: rgba(255,255,255,.85); }
+.EasyMDEContainer .editor-preview a { color: var(--clr-accent); text-decoration: underline; text-underline-offset: 3px; }
+.EasyMDEContainer .editor-preview code {
+  background: rgba(255,255,255,.06);
+  padding: .15rem .4rem;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: .9em;
+}
+.EasyMDEContainer .editor-preview pre {
+  background: rgba(0,0,0,.4);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+.EasyMDEContainer .editor-preview blockquote {
+  border-left: 3px solid var(--clr-accent);
+  padding-left: 1rem;
+  color: var(--clr-muted);
+  font-style: italic;
+}
+.EasyMDEContainer .editor-preview ul,
+.EasyMDEContainer .editor-preview ol { margin: .75rem 0 1rem 1.5rem; }
+.EasyMDEContainer .editor-preview ul li { list-style: disc; margin-bottom: .35rem; }
+.EasyMDEContainer .editor-preview ol li { list-style: decimal; margin-bottom: .35rem; }
+
+/* Fullscreen mode reuses the bg token */
+.EasyMDEContainer.sided--no-fullscreen .CodeMirror,
+.EasyMDEContainer .CodeMirror-fullscreen,
+.EasyMDEContainer .editor-preview-side {
+  background: var(--clr-bg-2);
+}

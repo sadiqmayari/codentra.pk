@@ -12,51 +12,17 @@
 (function () {
   'use strict';
 
-  // ── Toast ──────────────────────────────────────────────────────────────
-  function toast(msg, type) {
-    var el = document.createElement('div');
-    el.className = 'admin-toast admin-toast--' + (type || 'info');
-    el.textContent = msg;
-    document.body.appendChild(el);
-    requestAnimationFrame(function () { el.classList.add('is-visible'); });
-    setTimeout(function () {
-      el.classList.remove('is-visible');
-      setTimeout(function () { el.remove(); }, 250);
-    }, 2800);
-  }
-
-  // ── Confirm modal (single instance) ────────────────────────────────────
-  function confirmModal(opts) {
-    return new Promise(function (resolve) {
-      var bg = document.createElement('div');
-      bg.className = 'admin-modal-bg';
-      bg.innerHTML = ''
-        + '<div class="admin-modal glass" role="dialog" aria-modal="true">'
-        +   '<h3>' + (opts.title || 'Are you sure?') + '</h3>'
-        +   '<p>' + (opts.body || '') + '</p>'
-        +   '<div class="admin-modal__actions">'
-        +     '<button type="button" class="btn btn--ghost btn--small" data-cancel>' + (opts.cancelLabel || 'Cancel') + '</button>'
-        +     '<button type="button" class="btn btn--cta btn--small"   data-confirm>' + (opts.confirmLabel || 'Confirm') + '</button>'
-        +   '</div>'
-        + '</div>';
-      document.body.appendChild(bg);
-      requestAnimationFrame(function () { bg.classList.add('is-visible'); });
-
-      function close(value) {
-        bg.classList.remove('is-visible');
-        setTimeout(function () { bg.remove(); }, 200);
-        document.removeEventListener('keydown', esc);
-        resolve(value);
-      }
-      function esc(e) { if (e.key === 'Escape') close(false); }
-
-      bg.querySelector('[data-cancel]').addEventListener('click', function () { close(false); });
-      bg.querySelector('[data-confirm]').addEventListener('click', function () { close(true); });
-      bg.addEventListener('click', function (e) { if (e.target === bg) close(false); });
-      document.addEventListener('keydown', esc);
-      bg.querySelector('[data-confirm]').focus();
-    });
-  }
+  // Shared UI primitives live on window.AdminUI (admin-shared.js).
+  // Defensive shim in case admin-shared failed to load (degrades to
+  // alert/confirm so the page still works).
+  var UI = window.AdminUI || {
+    toast:   function (m) { console.log('[toast]', m); },
+    confirm: function (o) { return Promise.resolve(window.confirm((o && o.body) || 'Are you sure?')); },
+    markFormDirty:    function () {},
+    releaseFormDirty: function () {},
+  };
+  var toast        = UI.toast;
+  var confirmModal = UI.confirm;
 
   // ── Row-click navigation (delegated from tbody) ────────────────────────
   // Lives at document level so it survives any future DOM swaps and

@@ -119,6 +119,32 @@ $router->post('/admin/leads/{id}/delete',
     [\Middleware\AuthMiddleware::class]
 );
 
+// ── Admin: Blog Posts (Phase 9) — all behind AuthMiddleware ────────────────
+$router->get('/admin/posts',
+    [\Controllers\Admin\PostsController::class, 'index'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->get('/admin/posts/new',
+    [\Controllers\Admin\PostsController::class, 'create'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/posts',
+    [\Controllers\Admin\PostsController::class, 'store'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->get('/admin/posts/{id}/edit',
+    [\Controllers\Admin\PostsController::class, 'edit'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/posts/{id}',
+    [\Controllers\Admin\PostsController::class, 'update'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/posts/{id}/delete',
+    [\Controllers\Admin\PostsController::class, 'delete'],
+    [\Middleware\AuthMiddleware::class]
+);
+
 $router->fallback([\Controllers\ErrorController::class, 'notFound']);
 
 // ── Dispatch ──────────────────────────────────────────────────────────────────

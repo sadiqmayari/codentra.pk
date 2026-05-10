@@ -34,6 +34,15 @@ CREATE TABLE IF NOT EXISTS posts (
   deleted_at     TEXT
 );
 
+CREATE TABLE IF NOT EXISTS categories (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug        TEXT NOT NULL UNIQUE,
+  name        TEXT NOT NULL,
+  description TEXT,
+  created_at  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS lead_history (
   id         INTEGER PRIMARY KEY AUTOINCREMENT,
   lead_id    INTEGER NOT NULL,
@@ -50,6 +59,22 @@ SQL);
 $pdo->exec('DELETE FROM leads');
 $pdo->exec('DELETE FROM posts');
 $pdo->exec('DELETE FROM lead_history');
+$pdo->exec('DELETE FROM categories');
+
+// Seed the four service categories that match the public Services page.
+$catStmt = $pdo->prepare(
+    "INSERT INTO categories (slug, name, description, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?)"
+);
+$catNow = date('Y-m-d H:i:s');
+foreach ([
+    ['web-development',     'Web Development',       'Performance-first websites + apps.'],
+    ['shopify',             'Shopify',               'Conversion-driven storefronts.'],
+    ['ecommerce-management','E-commerce Management', 'End-to-end store ops.'],
+    ['business-automation', 'Business Automation',   'Workflow and AI automation.'],
+] as [$s, $n, $d]) {
+    $catStmt->execute([$s, $n, $d, $catNow, $catNow]);
+}
 
 $names    = ['Aisha K.','Bilal M.','Carla J.','Daniyal S.','Erum F.','Faisal R.','Gulshan A.','Hassan Z.','Imran T.','Junaid B.','Kiran P.','Laila Q.','Mehmood G.','Nadia W.','Omar V.'];
 $services = ['web-dev', 'shopify', 'ecommerce-mgmt', 'automation', 'other'];
