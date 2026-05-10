@@ -58,6 +58,59 @@
     });
   }
 
+  // ── Row-click navigation (delegated from tbody) ────────────────────────
+  // Lives at document level so it survives any future DOM swaps and
+  // covers both index page tbody + any other table that sets data-href.
+  // Selectors that should NOT trigger navigation when clicked.
+  var INTERACTIVE_SEL = 'input, button, a, label, select, textarea,'
+                      + ' [data-no-row-click], .actions-cell, .lead-copy';
+
+  document.addEventListener('click', function (e) {
+    var row = e.target.closest('tr[data-href]');
+    if (!row) return;
+
+    // Don't hijack clicks inside interactive elements within the row
+    // (checkboxes, kebab menus, links to details, copy buttons, etc.).
+    if (e.target.closest(INTERACTIVE_SEL)) return;
+
+    var href = row.getAttribute('data-href');
+    if (!href) return;
+
+    // Cmd/Ctrl/Shift/middle-click → new tab. Let the browser do its
+    // thing; don't preventDefault. We only force-open here because the
+    // <tr> isn't an <a>, so the browser won't honour the modifier on
+    // its own.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) {
+      window.open(href, '_blank', 'noopener');
+      return;
+    }
+
+    if (e.button !== 0) return; // ignore right-click etc.
+    window.location.href = href;
+  });
+
+  // Middle-click fires 'auxclick', not 'click', in modern browsers.
+  document.addEventListener('auxclick', function (e) {
+    if (e.button !== 1) return;
+    var row = e.target.closest('tr[data-href]');
+    if (!row) return;
+    if (e.target.closest(INTERACTIVE_SEL)) return;
+    var href = row.getAttribute('data-href');
+    if (!href) return;
+    e.preventDefault();
+    window.open(href, '_blank', 'noopener');
+  });
+
+  // Keyboard: row is tabindex="0", Enter activates it as a link.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    var row = e.target.closest('tr[data-href]');
+    if (!row) return;
+    if (e.target.closest(INTERACTIVE_SEL)) return;
+    var href = row.getAttribute('data-href');
+    if (href) window.location.href = href;
+  });
+
   // ── Index page: debounced search ───────────────────────────────────────
   var searchInput = document.querySelector('[data-leads-search]');
   var filterForm  = document.querySelector('[data-leads-filter]');
