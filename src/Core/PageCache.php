@@ -41,7 +41,7 @@ class PageCache
 
     public function flush(): void
     {
-        foreach (glob($this->dir . '/*.html') as $file) {
+        foreach (glob($this->dir . '/*.html') ?: [] as $file) {
             unlink($file);
         }
     }

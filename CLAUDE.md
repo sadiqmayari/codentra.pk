@@ -268,6 +268,10 @@ Engine: `InnoDB` · Collation: `utf8mb4_unicode_ci`
 
 4. **Hostinger filesystem case-sensitive** — Linux filesystem; `Image.PNG` ≠ `image.png`. Always lowercase asset filenames.
 
+5. **Google Search Console verification via meta tag** — The token is stored in admin settings (`/admin/settings` → SEO → "Search Console verification"). Enter **only** the bare content value (e.g. `XXXX1234abc`), NOT the full `<meta>` tag. After saving, purge Cloudflare cache (Dashboard → Caching → Purge Everything) before asking Google to verify — CF edge cache can serve stale HTML that doesn't contain the tag.
+
+6. **`PageCache::flush()` + PHP 8** — `glob()` returns `false` on filesystem error; `foreach (false as ...)` throws `TypeError` in PHP 8. Fixed with `glob(...) ?: []`. If settings-save ever logs `[SETTING] save-failed` with no obvious DB error, check this path.
+
 ---
 
 ## Performance Architecture
