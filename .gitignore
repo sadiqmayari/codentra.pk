@@ -13,6 +13,7 @@ composer.lock
 # Project runtime data (should not be in repo)
 /cache/pages/*
 !/cache/pages/.gitkeep
+/cache/sitemap.xml
 /uploads/*
 !/uploads/.gitkeep
 !/uploads/.htaccess
