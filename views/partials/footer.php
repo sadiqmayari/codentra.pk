@@ -1,6 +1,7 @@
 <?php
-// Pull editable values from settings — fall back to constants if DB empty/unavailable.
-$siteTitle    = 'Codentra';
+// Brand display is the LITERAL brand name — not site_title (which is the SEO meta).
+// Tagline is editable; brand name stays "Codentra".
+$brandName    = 'Codentra';
 $tagline      = 'Code · Automate · Scale';
 $contactEmail = SITE_EMAIL;
 $contactPhone = SITE_PHONE;
@@ -14,7 +15,6 @@ $social = [
 
 try {
     $settings     = new \Models\Setting();
-    $siteTitle    = $settings->get('site_title',   'Codentra')                  ?: 'Codentra';
     $tagline      = $settings->get('site_tagline', 'Code · Automate · Scale')   ?: 'Code · Automate · Scale';
     $contactEmail = $settings->get('contact_email', SITE_EMAIL)                 ?: SITE_EMAIL;
     $contactPhone = $settings->get('contact_phone', SITE_PHONE)                 ?: SITE_PHONE;
@@ -27,12 +27,9 @@ try {
 
 $year = date('Y');
 
-// Brand: keep the "C"-accent split visual treatment regardless of site_title.
-// If the title starts with a single uppercase letter, split off that letter
-// for the accent; otherwise show the whole title in the accent.
-$brandTitle = htmlspecialchars($siteTitle);
-$brandFirst = mb_substr($siteTitle, 0, 1);
-$brandRest  = mb_substr($siteTitle, 1);
+$brandTitle = htmlspecialchars($brandName);
+$brandFirst = mb_substr($brandName, 0, 1);
+$brandRest  = mb_substr($brandName, 1);
 ?>
 <footer class="site-footer" role="contentinfo">
   <div class="container">

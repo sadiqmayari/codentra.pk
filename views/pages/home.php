@@ -6,26 +6,41 @@
 <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
 <section class="hero" aria-labelledby="hero-title">
   <canvas id="hero-canvas" class="hero__canvas" aria-hidden="true"></canvas>
+  <div class="hero__grid" aria-hidden="true"></div>
+  <div class="hero__blob hero__blob--1" aria-hidden="true"></div>
+  <div class="hero__blob hero__blob--2" aria-hidden="true"></div>
   <div class="hero__overlay" aria-hidden="true"></div>
 
   <div class="container hero__inner">
-    <p class="hero__eyebrow" data-reveal>Web · Shopify · Automation</p>
+
+    <span class="hero__badge" data-reveal>
+      <span class="hero__badge-dot" aria-hidden="true"></span>
+      Available for Q3 2026 projects
+    </span>
+
     <h1 id="hero-title" class="hero__title" data-reveal data-reveal-delay="100">
-      Code <span class="dot">·</span> Automate <span class="dot">·</span> Scale
+      <span class="hero__title-line">
+        <span class="hero__title-word">Code</span><span class="dot" aria-hidden="true">·</span><span class="hero__title-word">Automate</span><span class="dot" aria-hidden="true">·</span><span class="hero__title-word">Scale</span>
+      </span>
     </h1>
+
     <p class="hero__sub" data-reveal data-reveal-delay="200">
-      Codentra is a Pakistan-based agency engineering premium websites, Shopify storefronts,
-      and automation systems for teams that want to ship faster — without sacrificing quality.
+      We engineer premium websites, Shopify storefronts and business automation
+      <span class="hero__sub-strong">that ship fast and scale further.</span>
     </p>
+
     <div class="hero__cta" data-reveal data-reveal-delay="300">
-      <a class="btn btn--cta" href="/contact">Start a project</a>
+      <a class="btn btn--cta btn--icon" href="/contact">
+        Start a project
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </a>
       <a class="btn btn--ghost" href="/services">Explore services</a>
     </div>
 
     <div class="hero__stats" data-reveal data-reveal-delay="420">
       <div class="hero__stat">
         <span class="hero__stat-value">50+</span>
-        <span class="hero__stat-label">Projects delivered</span>
+        <span class="hero__stat-label">Projects shipped</span>
       </div>
       <div class="hero__stat">
         <span class="hero__stat-value">95+</span>

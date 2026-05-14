@@ -10,11 +10,10 @@ $navLinks = [
 $isActive = fn(string $href): bool =>
   $href === '/' ? $currentPath === '/' : str_starts_with($currentPath, $href);
 
-// Brand text from settings, with constant fallback when DB is unavailable.
+// Brand display is the literal brand name — NOT site_title (which is the SEO meta).
+// site_title may be "Codentra — Code · Automate · Scale" for search engines;
+// here we only ever show "Codentra" with the accent split.
 $brandTitleHeader = 'Codentra';
-try {
-    $brandTitleHeader = (new \Models\Setting())->get('site_title', 'Codentra') ?: 'Codentra';
-} catch (\Throwable) { /* keep default */ }
 $brandFirstHeader = mb_substr($brandTitleHeader, 0, 1);
 $brandRestHeader  = mb_substr($brandTitleHeader, 1);
 ?>

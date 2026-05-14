@@ -117,7 +117,9 @@ h1, h2, h3, h4 {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
+  text-wrap: balance;
 }
+p, .section__lead, .hero__sub { text-wrap: pretty; }
 
 /* ── Accessibility ─────────────────────────────────────────────────────── */
 :focus-visible {
@@ -433,7 +435,62 @@ body:not(.is-home) .site-header {
   align-items: center;
   overflow: hidden;
   isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(42,157,143,.22) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 90%, rgba(244,162,97,.10) 0%, transparent 55%),
+    var(--clr-bg);
 }
+
+/* Cyber grid overlay — subtle 1px grid that fades out toward edges */
+.hero__grid {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(to right,  rgba(42,157,143,0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(42,157,143,0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image:        radial-gradient(ellipse at 50% 40%, #000 0%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 0%, transparent 75%);
+  pointer-events: none;
+  animation: heroGridDrift 22s linear infinite;
+}
+@keyframes heroGridDrift {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 56px 56px, 56px 56px; }
+}
+
+/* Floating gradient blobs for depth */
+.hero__blob {
+  position: absolute;
+  z-index: -3;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
+}
+.hero__blob--1 {
+  width: 520px; height: 520px;
+  top: -120px; left: -160px;
+  background: radial-gradient(circle, rgba(42,157,143,0.55) 0%, transparent 70%);
+  animation: blobFloat1 18s ease-in-out infinite;
+}
+.hero__blob--2 {
+  width: 460px; height: 460px;
+  bottom: -140px; right: -120px;
+  background: radial-gradient(circle, rgba(244,162,97,0.35) 0%, transparent 70%);
+  animation: blobFloat2 24s ease-in-out infinite;
+}
+@keyframes blobFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(40px, 60px) scale(1.08); }
+}
+@keyframes blobFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-50px, -40px) scale(1.05); }
+}
+
 .hero::before {
   content: '';
   position: absolute;
@@ -447,7 +504,10 @@ body:not(.is-home) .site-header {
   inset: 0;
   width: 100%; height: 100%;
   z-index: -1;
+  opacity: 0;
+  transition: opacity 0.7s ease;
 }
+.hero__canvas.is-ready { opacity: 1; }
 .hero__overlay {
   position: absolute;
   inset: 0;
@@ -461,35 +521,82 @@ body:not(.is-home) .site-header {
   z-index: 1;
   padding-block: 4rem;
 }
-.hero__eyebrow {
-  font-size: var(--fs-xs);
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--clr-accent);
-  font-weight: 500;
-  margin-bottom: 1.25rem;
-}
-.hero__title {
-  font-size: clamp(2.25rem, 7vw, var(--fs-3xl));
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+
+/* Status pulse badge */
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 1rem;
   margin-bottom: 1.5rem;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--clr-text);
+  background: rgba(42, 157, 143, 0.12);
+  border: 1px solid rgba(42, 157, 143, 0.35);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.hero__title .dot { color: var(--clr-accent); display: inline-block; transform: translateY(-0.05em); }
+.hero__badge-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.7);
+  animation: pulseDot 2.2s ease-out infinite;
+}
+@keyframes pulseDot {
+  0%   { box-shadow: 0 0 0 0 rgba(42,157,143,0.65); }
+  70%  { box-shadow: 0 0 0 10px rgba(42,157,143,0); }
+  100% { box-shadow: 0 0 0 0 rgba(42,157,143,0); }
+}
+
+.hero__title {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  margin-bottom: 1.5rem;
+  text-wrap: balance;
+}
+.hero__title-line { display: inline-block; max-width: 18ch; }
+.hero__title-word {
+  display: inline-block;
+  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.78) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
+.hero__title .dot {
+  color: var(--clr-accent);
+  display: inline-block;
+  padding: 0 0.45rem;
+  transform: translateY(-0.05em);
+  text-shadow: 0 0 18px rgba(42, 157, 143, 0.55);
+}
 .hero__sub {
-  font-size: clamp(1rem, 1.5vw, var(--fs-md));
+  font-size: clamp(1.05rem, 1.5vw, var(--fs-md));
   color: var(--clr-muted);
   font-weight: 300;
-  max-width: 640px;
+  max-width: 620px;
   margin: 0 auto 2.5rem;
+  text-wrap: pretty;
 }
+.hero__sub-strong { color: var(--clr-text); font-weight: 400; }
+
 .hero__cta {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: center;
 }
+.btn--icon svg {
+  width: 16px; height: 16px;
+  transition: transform var(--t-base);
+}
+.btn--icon:hover svg { transform: translateX(3px); }
 
 .hero__scroll-cue {
   position: absolute;
@@ -2364,4 +2471,181 @@ body.admin-drawer-open .admin-sidebar { transform: translateX(0); }
 }
 .settings-save-btn {
   padding: .8rem 1.6rem;
+}
+
+/* ============================================================================
+ * === Future-tech FX layer ===
+ *  Adds: animated gradient borders on glass cards, glowing section dividers,
+ *  button glow ring, balanced text constraints, accent underline on titles.
+ *  Pure CSS, no JS, no extra assets.
+ * ========================================================================== */
+
+/* Title accent line — animated gradient bar under section headers */
+.section__header { position: relative; }
+.section__header::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 1.25rem auto 0;
+  background: linear-gradient(90deg, transparent, var(--clr-accent), transparent);
+  background-size: 200% 100%;
+  animation: gradientShift 4s ease-in-out infinite;
+}
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Animated gradient border on glass cards.
+ *
+ * Trick: a ::before with a conic gradient sits behind the card, and we mask
+ * out the inner area so only a 1px gradient ring shows. Animated on hover. */
+.card.glass, .testimonial.glass, .lead-cta__panel.glass {
+  position: relative;
+}
+.card.glass::before,
+.testimonial.glass::before,
+.lead-cta__panel.glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    transparent 0%,
+    rgba(42, 157, 143, 0.55) 18%,
+    transparent 35%,
+    transparent 65%,
+    rgba(244, 162, 97, 0.45) 82%,
+    transparent 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--t-base);
+  pointer-events: none;
+  z-index: 0;
+}
+.card.glass:hover::before,
+.testimonial.glass:hover::before,
+.lead-cta__panel:hover::before { opacity: 1; }
+
+/* Spin the gradient — uses CSS @property for smooth animation when supported */
+@supports (background: paint(something)) {
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+  .card.glass:hover,
+  .testimonial.glass:hover,
+  .lead-cta__panel:hover {
+    animation: borderSpin 4s linear infinite;
+  }
+  @keyframes borderSpin {
+    to { --angle: 360deg; }
+  }
+}
+
+/* Make sure card content stays above the ::before */
+.card.glass > *, .testimonial.glass > *, .lead-cta__panel > * { position: relative; z-index: 1; }
+
+/* Button glow ring (CTA + primary) */
+.btn--cta::after,
+.btn--primary::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: inherit;
+  filter: blur(14px);
+  opacity: 0;
+  transition: opacity var(--t-base);
+  z-index: -1;
+}
+.btn--cta, .btn--primary { position: relative; }
+.btn--cta:hover::after,
+.btn--primary:hover::after { opacity: 0.55; }
+
+/* Section divider — thin glowing line between sections */
+.section + .section,
+.hero + .section {
+  position: relative;
+}
+.section + .section::before,
+.hero + .section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(360px, 60%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(42,157,143,0.55), transparent);
+  pointer-events: none;
+}
+
+/* Heading wrap polish (apply specifically to long section titles) */
+.section__title, .hero__title, .page-hero__title,
+.lead-card__title, .blog-post__title {
+  text-wrap: balance;
+}
+.hero__sub, .section__lead, .page-hero__sub { text-wrap: pretty; }
+
+/* Hero stats — refined to feel more "data readout" */
+.hero__stats { position: relative; }
+.hero__stats::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: 80px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--clr-accent), transparent);
+}
+
+/* Process timeline — connector dots between steps on desktop */
+@media (min-width: 1024px) {
+  .process-timeline { position: relative; }
+  .process-step { position: relative; }
+  .process-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -0.875rem;
+    width: 0.75rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--clr-accent), transparent);
+    pointer-events: none;
+  }
+}
+
+/* Footer subtle top accent line */
+.site-footer { position: relative; }
+.site-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 50%;
+  transform: translateX(-50%);
+  width: min(480px, 70%);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(42,157,143,0.5), transparent);
+}
+
+/* Header brand — slight letter-spacing animation on hover */
+.brand { transition: letter-spacing var(--t-base); }
+.brand:hover { letter-spacing: -0.025em; }
+
+/* Reduced motion — disable all decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  .hero__grid, .hero__blob,
+  .section__header::after, .hero__badge-dot {
+    animation: none !important;
+  }
+  .card.glass:hover, .testimonial.glass:hover, .lead-cta__panel:hover {
+    animation: none !important;
+  }
 }
