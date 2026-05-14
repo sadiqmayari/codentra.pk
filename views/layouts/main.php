@@ -17,6 +17,15 @@ $isHome = ($_SERVER['REQUEST_URI'] ?? '/') === '/' || ($_SERVER['REQUEST_URI'] ?
   <meta name="theme-color" content="#0A1C28">
   <meta name="format-detection" content="telephone=no">
 
+  <?php
+    // Site-wide Organization JSON-LD on every public page. Per-page
+    // controllers add Article / Breadcrumb / LocalBusiness on top via
+    // $seo->addJsonLd(). We only add Organization here if a controller
+    // hasn't already — keeps the LD blob deduplicated.
+    if (!$seo->hasJsonLdType('Organization')) {
+        $seo->addJsonLd(\Seo::organizationSchema());
+    }
+  ?>
   <?= $seo->render() ?>
 
   <link rel="icon" type="image/svg+xml" href="/public/images/favicon.svg">

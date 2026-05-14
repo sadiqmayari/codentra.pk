@@ -22,7 +22,12 @@ class ContactController extends \Core\Controller
         ->addJsonLd(\Seo::breadcrumbSchema([
             ['Home', '/'],
             ['Contact', '/contact'],
-        ]));
+        ]))
+        // LocalBusiness only on /contact — gives Google a clear "this is
+        // the page to surface for 'codentra contact' queries" signal,
+        // alongside the site-wide Organization schema rendered by the
+        // main layout.
+        ->addJsonLd(\Seo::localBusinessSchema());
 
         $flash = $_SESSION['_flash']  ?? null;
         $old   = $_SESSION['_old']    ?? [];

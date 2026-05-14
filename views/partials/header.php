@@ -9,12 +9,20 @@ $navLinks = [
 ];
 $isActive = fn(string $href): bool =>
   $href === '/' ? $currentPath === '/' : str_starts_with($currentPath, $href);
+
+// Brand text from settings, with constant fallback when DB is unavailable.
+$brandTitleHeader = 'Codentra';
+try {
+    $brandTitleHeader = (new \Models\Setting())->get('site_title', 'Codentra') ?: 'Codentra';
+} catch (\Throwable) { /* keep default */ }
+$brandFirstHeader = mb_substr($brandTitleHeader, 0, 1);
+$brandRestHeader  = mb_substr($brandTitleHeader, 1);
 ?>
 <header class="site-header" data-header role="banner">
   <div class="container site-header__inner">
 
-    <a class="brand" href="/" aria-label="Codentra — home">
-      <span class="brand__mark">C</span><span class="brand__rest">odentra</span>
+    <a class="brand" href="/" aria-label="<?= htmlspecialchars($brandTitleHeader) ?> — home">
+      <span class="brand__mark"><?= htmlspecialchars($brandFirstHeader) ?></span><span class="brand__rest"><?= htmlspecialchars($brandRestHeader) ?></span>
     </a>
 
     <nav class="primary-nav" aria-label="Primary">

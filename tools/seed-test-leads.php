@@ -34,6 +34,13 @@ CREATE TABLE IF NOT EXISTS posts (
   deleted_at     TEXT
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  key_name    TEXT NOT NULL UNIQUE,
+  value       TEXT,
+  updated_at  TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS categories (
   id          INTEGER PRIMARY KEY AUTOINCREMENT,
   slug        TEXT NOT NULL UNIQUE,
@@ -60,6 +67,49 @@ $pdo->exec('DELETE FROM leads');
 $pdo->exec('DELETE FROM posts');
 $pdo->exec('DELETE FROM lead_history');
 $pdo->exec('DELETE FROM categories');
+$pdo->exec('DELETE FROM settings');
+
+// Mirror Phase 10 migration 003 — defaults for every setting key the
+// SettingsController expects. INSERT (not INSERT OR IGNORE) is fine
+// because we just truncated.
+$setStmt = $pdo->prepare(
+    "INSERT INTO settings (key_name, value, updated_at) VALUES (?, ?, ?)"
+);
+$setNow = date('Y-m-d H:i:s');
+$defaultSettings = [
+    // General
+    'site_title'                => 'Codentra',
+    'site_tagline'              => 'Code · Automate · Scale',
+    'site_description'          => 'Codentra is a premium web development, Shopify, e-commerce management & business automation agency based in Pakistan.',
+    'site_logo'                 => '/public/images/logo.webp',
+    'timezone'                  => 'Asia/Karachi',
+    // Contact
+    'contact_phone'             => '+92 317 1263292',
+    'contact_email'             => 'info@codentra.pk',
+    'contact_address'           => '',
+    'business_hours'            => 'Mon–Fri 9:00–18:00 PKT',
+    'response_time_promise'     => 'within 24 hours',
+    // Social
+    'social_facebook'           => '',
+    'social_instagram'          => '',
+    'social_linkedin'           => '',
+    'social_twitter'            => '',
+    'social_youtube'            => '',
+    // SEO
+    'seo_default_title_suffix'  => ' | Codentra',
+    'seo_og_image'              => '/public/images/og-default.webp',
+    'google_analytics_id'       => '',
+    'google_search_console'     => '',
+    // Business
+    'business_name'             => 'Codentra',
+    'business_legal_name'       => 'Codentra',
+    'business_founded_year'     => '2025',
+    'business_country'          => 'Pakistan',
+    'business_city'             => 'Islamabad',
+];
+foreach ($defaultSettings as $k => $v) {
+    $setStmt->execute([$k, $v, $setNow]);
+}
 
 // Seed the four service categories that match the public Services page.
 $catStmt = $pdo->prepare(

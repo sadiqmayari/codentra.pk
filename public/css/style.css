@@ -2146,3 +2146,103 @@ body.admin-drawer-open .admin-sidebar { transform: translateX(0); }
 .EasyMDEContainer .editor-preview-side {
   background: var(--clr-bg-2);
 }
+
+/* ============================================================================
+ * === Admin Settings ===
+ *  Tabbed nav, sectioned form, sticky save bar. Reuses public design tokens
+ *  + the .lead-card glass primitive.
+ * ========================================================================== */
+
+.settings-header { margin-bottom: 1.5rem; }
+
+/* --- Tab nav --- */
+.settings-tabs {
+  display: flex;
+  gap: .25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--clr-border);
+  overflow-x: auto;
+  position: sticky;
+  top: 60px;       /* below the admin topbar */
+  background: var(--clr-bg);
+  z-index: 5;
+  padding-top: .5rem;
+}
+.settings-tabs a {
+  display: inline-flex;
+  align-items: center;
+  padding: .65rem 1rem;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--clr-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.settings-tabs a:hover    { color: var(--clr-text); }
+.settings-tabs a.is-active { color: var(--clr-accent); border-bottom-color: var(--clr-accent); }
+
+/* --- Section card --- */
+.settings-section {
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  scroll-margin-top: 130px; /* topbar + tabs */
+}
+.settings-section__head { margin-bottom: 1rem; }
+.settings-section__head .lead-card__title { margin-bottom: .25rem; }
+.settings-section__desc { color: var(--clr-muted); font-size: var(--fs-sm); }
+
+.settings-section__body {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .settings-section__body { grid-template-columns: repeat(2, 1fr); }
+  .settings-section__body .form-field:has(textarea) { grid-column: 1 / -1; }
+}
+
+.settings__field input,
+.settings__field textarea {
+  width: 100%;
+  padding: .65rem .85rem;
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-md);
+  color: var(--clr-text);
+  font-size: var(--fs-sm);
+  font-family: inherit;
+}
+.settings__field input:focus,
+.settings__field textarea:focus { outline: none; border-color: var(--clr-accent); }
+
+.settings__help {
+  margin-top: .35rem;
+  font-size: var(--fs-xs);
+  color: var(--clr-muted);
+  line-height: 1.5;
+}
+
+/* --- Sticky save bar at form bottom --- */
+.settings-save-bar {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, var(--clr-bg) 25%);
+  padding: 1.5rem 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.settings-save-bar__hint {
+  color: var(--clr-muted);
+  font-size: var(--fs-xs);
+  margin: 0;
+  max-width: 60ch;
+  text-align: right;
+}
+.settings-save-btn {
+  padding: .8rem 1.6rem;
+}

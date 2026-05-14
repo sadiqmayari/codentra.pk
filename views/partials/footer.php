@@ -1,13 +1,23 @@
 <?php
-// Pull editable values from settings — fall back to constants if DB empty/unavailable
+// Pull editable values from settings — fall back to constants if DB empty/unavailable.
+$siteTitle    = 'Codentra';
+$tagline      = 'Code · Automate · Scale';
 $contactEmail = SITE_EMAIL;
 $contactPhone = SITE_PHONE;
-$social = ['facebook' => '', 'instagram' => '', 'linkedin' => '', 'twitter' => '', 'github' => ''];
+$social = [
+    'facebook'  => '',
+    'instagram' => '',
+    'linkedin'  => '',
+    'twitter'   => '',
+    'youtube'   => '',
+];
 
 try {
-    $settings = new \Models\Setting();
-    $contactEmail = $settings->get('contact_email', SITE_EMAIL) ?: SITE_EMAIL;
-    $contactPhone = $settings->get('contact_phone', SITE_PHONE) ?: SITE_PHONE;
+    $settings     = new \Models\Setting();
+    $siteTitle    = $settings->get('site_title',   'Codentra')                  ?: 'Codentra';
+    $tagline      = $settings->get('site_tagline', 'Code · Automate · Scale')   ?: 'Code · Automate · Scale';
+    $contactEmail = $settings->get('contact_email', SITE_EMAIL)                 ?: SITE_EMAIL;
+    $contactPhone = $settings->get('contact_phone', SITE_PHONE)                 ?: SITE_PHONE;
     foreach (array_keys($social) as $k) {
         $social[$k] = (string) $settings->get('social_' . $k, '');
     }
@@ -16,6 +26,13 @@ try {
 }
 
 $year = date('Y');
+
+// Brand: keep the "C"-accent split visual treatment regardless of site_title.
+// If the title starts with a single uppercase letter, split off that letter
+// for the accent; otherwise show the whole title in the accent.
+$brandTitle = htmlspecialchars($siteTitle);
+$brandFirst = mb_substr($siteTitle, 0, 1);
+$brandRest  = mb_substr($siteTitle, 1);
 ?>
 <footer class="site-footer" role="contentinfo">
   <div class="container">
@@ -23,10 +40,10 @@ $year = date('Y');
     <div class="site-footer__grid">
 
       <div class="site-footer__col site-footer__col--brand">
-        <a class="brand brand--footer" href="/" aria-label="Codentra — home">
-          <span class="brand__mark">C</span><span class="brand__rest">odentra</span>
+        <a class="brand brand--footer" href="/" aria-label="<?= $brandTitle ?> — home">
+          <span class="brand__mark"><?= htmlspecialchars($brandFirst) ?></span><span class="brand__rest"><?= htmlspecialchars($brandRest) ?></span>
         </a>
-        <p class="site-footer__tagline">Code · Automate · Scale</p>
+        <p class="site-footer__tagline"><?= htmlspecialchars($tagline) ?></p>
         <p class="site-footer__blurb">
           Premium web development, Shopify, e-commerce management &amp; business automation —
           built for teams that want to ship faster without sacrificing quality.
@@ -75,7 +92,7 @@ $year = date('Y');
             'twitter'   => 'Twitter',
             'instagram' => 'Instagram',
             'facebook'  => 'Facebook',
-            'github'    => 'GitHub',
+            'youtube'   => 'YouTube',
           ];
           foreach ($socialLabels as $key => $label):
             $url = $social[$key] ?? '';
@@ -93,7 +110,7 @@ $year = date('Y');
     </div>
 
     <div class="site-footer__bottom">
-      <p class="site-footer__copy">© <?= $year ?> Codentra. All rights reserved.</p>
+      <p class="site-footer__copy">© <?= $year ?> <?= $brandTitle ?>. All rights reserved.</p>
       <ul class="site-footer__legal">
         <li><a href="/privacy">Privacy</a></li>
         <li><a href="/terms">Terms</a></li>

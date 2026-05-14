@@ -145,6 +145,19 @@ $router->post('/admin/posts/{id}/delete',
     [\Middleware\AuthMiddleware::class]
 );
 
+// ── Admin: Settings (Phase 10) ─────────────────────────────────────────────
+$router->get('/admin/settings',
+    [\Controllers\Admin\SettingsController::class, 'index'],
+    [\Middleware\AuthMiddleware::class]
+);
+$router->post('/admin/settings',
+    [\Controllers\Admin\SettingsController::class, 'save'],
+    [\Middleware\AuthMiddleware::class]
+);
+
+// ── Public: dynamic sitemap (Phase 10) ─────────────────────────────────────
+$router->get('/sitemap.xml', [\Controllers\SitemapController::class, 'index']);
+
 $router->fallback([\Controllers\ErrorController::class, 'notFound']);
 
 // ── Dispatch ──────────────────────────────────────────────────────────────────

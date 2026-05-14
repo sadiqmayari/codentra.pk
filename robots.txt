@@ -1,10 +1,26 @@
 User-agent: *
 Allow: /
+
+# Admin surface — never crawl. AuthMiddleware also blocks it,
+# but search engines should know not to even try.
 Disallow: /admin
+Disallow: /admin/
+
+# API + system surfaces
 Disallow: /api/
 Disallow: /cache/
-Disallow: /uploads/
-Disallow: /.env
+Disallow: /sql/
 Disallow: /config/
+Disallow: /tools/
+Disallow: /storage/
+
+# Secrets — never indexed even though .htaccess also denies them
+Disallow: /.env
+Disallow: /.htaccess
+
+# Uploads: block the bucket by default, then explicitly allow the
+# blog-images subdir so Google Images can index featured images.
+Disallow: /uploads/
+Allow:    /uploads/posts/
 
 Sitemap: https://codentra.pk/sitemap.xml

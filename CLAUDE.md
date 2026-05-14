@@ -371,13 +371,12 @@ quote request, etc.) should either reuse this controller with a new
 - [x] Phase 5 — Lead capture + email (live, email-to-spam known issue)
 - [x] Cloudflare integration + IP detection hardening (live)
 - [x] Phase 6 — Admin authentication (live)
-- [ ] Phase 7 — Admin Dashboard (live)
-- [ ] Phase 8 — Leads Management (live)
+- [x] Phase 7 — Admin Dashboard (live)
+- [x] Phase 8 — Leads Management (live)
+- [x] Phase 9 — Blog Management (live)
+- [x] Phase 10 — Settings + final polish (live)
 
-## ⏳ Phases Remaining
-
-- [ ] Phase 9 — Blog Management
-- [ ] Phase 10 — Settings + final polish
+## ⏳ Phases Remaining (post-launch enhancements)
 
 - [ ] **Phase 9.5: Scheduled publishing** — set future published_at, cron auto-publishes
 - [ ] **Phase 9.6: Tags & full-text search** — tags column, search /blog

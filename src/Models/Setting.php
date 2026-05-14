@@ -37,16 +37,27 @@ class Setting extends \Core\Model
 
     public function set(string $key, ?string $value): bool
     {
+        $now = date('Y-m-d H:i:s');
+
+        // UPDATE first (covers the common case — the row already exists
+        // for every key in the migration). If nothing was updated, insert.
+        // Portable across MySQL + SQLite — no ON DUPLICATE / ON CONFLICT
+        // dialect needed.
         $stmt = $this->db->prepare(
-            "INSERT INTO `settings` (`key_name`, `value`, `updated_at`)
-             VALUES (?, ?, ?)
-             ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), `updated_at` = VALUES(`updated_at`)"
+            "UPDATE `settings` SET `value` = ?, `updated_at` = ? WHERE `key_name` = ?"
         );
-        $ok = $stmt->execute([$key, $value, date('Y-m-d H:i:s')]);
+        $stmt->execute([$value, $now, $key]);
+
+        if ($stmt->rowCount() === 0) {
+            $insert = $this->db->prepare(
+                "INSERT INTO `settings` (`key_name`, `value`, `updated_at`) VALUES (?, ?, ?)"
+            );
+            $insert->execute([$key, $value, $now]);
+        }
 
         // Invalidate cache so next read sees the new value
         self::$cache[$key] = $value;
-        return $ok;
+        return true;
     }
 
     public function setMany(array $kv): void
