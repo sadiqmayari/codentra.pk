@@ -78,7 +78,7 @@ class Seo
         // Search Console verification token (when configured)
         $gsc = self::settingOr('google_search_console', '');
         if ($gsc !== '') {
-            $out .= "<meta name=\"google-site-verification\" content=\"" . htmlspecialchars($gsc, ENT_QUOTES, 'UTF-8') . "\">\n";
+            $out .= '<meta name="google-site-verification" content="' . htmlspecialchars($gsc, ENT_QUOTES, 'UTF-8') . '" />' . "\n";
         }
 
         // JSON-LD blocks
