@@ -21,6 +21,21 @@
       <a class="btn btn--cta" href="/contact">Start a project</a>
       <a class="btn btn--ghost" href="/services">Explore services</a>
     </div>
+
+    <div class="hero__stats" data-reveal data-reveal-delay="420">
+      <div class="hero__stat">
+        <span class="hero__stat-value">50+</span>
+        <span class="hero__stat-label">Projects delivered</span>
+      </div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">95+</span>
+        <span class="hero__stat-label">Lighthouse score</span>
+      </div>
+      <div class="hero__stat">
+        <span class="hero__stat-value">&lt; 1 day</span>
+        <span class="hero__stat-label">Response time</span>
+      </div>
+    </div>
   </div>
 
   <div class="hero__scroll-cue" aria-hidden="true">
@@ -171,12 +186,18 @@
     </header>
 
     <ul class="card-grid card-grid--3">
-      <?php foreach ($testimonials as $i => $t): ?>
+      <?php foreach ($testimonials as $i => $t):
+        $initials = strtoupper(mb_substr(trim($t['name']), 0, 1));
+      ?>
         <li class="testimonial glass" data-reveal data-reveal-delay="<?= $i * 100 ?>">
-          <p class="testimonial__quote">&ldquo;<?= htmlspecialchars($t['quote']) ?>&rdquo;</p>
+          <div class="testimonial__stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p class="testimonial__quote"><?= htmlspecialchars($t['quote']) ?></p>
           <footer class="testimonial__by">
-            <strong><?= htmlspecialchars($t['name']) ?></strong>
-            <span><?= htmlspecialchars($t['role']) ?></span>
+            <div class="testimonial__avatar" aria-hidden="true"><?= $initials ?></div>
+            <div class="testimonial__attribution">
+              <strong><?= htmlspecialchars($t['name']) ?></strong>
+              <span><?= htmlspecialchars($t['role']) ?></span>
+            </div>
           </footer>
         </li>
       <?php endforeach; ?>
